@@ -161,7 +161,7 @@ compress () {
     mkdir -p "$COMPRESS_DIR_TODAY"
 
     # compress file path
-    COMPRESS_FILE="$COMPRESS_DIR_TODAY/$COMPRESS_FILE_NOW.tar.gz"
+    COMPRESS_FILE="$COMPRESS_DIR_TODAY/$COMPRESS_DIR_TODAY-$COMPRESS_FILE_NOW.tar.gz"
 
     # do compression
     # need to remove '/'' prefix from BACKUP_DIR to avoid tar warning 'Removing leading `/' from member names'
