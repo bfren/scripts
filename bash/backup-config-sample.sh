@@ -56,6 +56,7 @@ KEEP_COMPRESSED_FOR=28
 # DIRECTORIES - use absolute paths
 # ======================================================================================================================
 
+# note - associative arrays are stored as hashes, so backups WILL NOT BE DONE IN THIS ORDER
 declare -A D
 D["/path/to/dir/0"]="" # empty string will use $BACKUP_DIR
 D["/path/to/dir/1"]="/path/to/backup/dir"
@@ -65,6 +66,7 @@ D["/path/to/dir/1"]="/path/to/backup/dir"
 # FILES - use absolute paths
 # ======================================================================================================================
 
+# note - associative arrays are stored as hashes, so backups WILL NOT BE DONE IN THIS ORDER
 declare -A F
 F["/path/to/file/0"]="" # empty string will use $BACKUP_DIR
 F["/path/to/file/1"]="/path/to/backup/dir"
