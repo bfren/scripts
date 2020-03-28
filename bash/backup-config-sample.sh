@@ -16,7 +16,7 @@ BACKUP_DIR_HOME="$BACKUP_DIR/home"
 # ======================================================================================================================
 
 # the arguments used by rsync
-RSYNC_ARGS="rptgoiDL"
+RSYNC_ARGS="aimz"
 
 # absolute path to rsync exclusions text file
 # if this is not set, nothing will be excluded from the backup

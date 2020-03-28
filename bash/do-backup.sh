@@ -44,8 +44,9 @@ source "$CONFIG"
 # ======================================================================================================================
 
 START=`date +%s`
-LOG="$LOG_DIR/backup-$(date +%Y%m%d).log"
-COMPRESS_FILE_NOW="$(date +%H%M)"
+TODAY="$(date +%Y%m%d)"
+NOW="$(date +%H%M)"
+LOG="$LOG_DIR/backup-$TODAY.log"
 
 
 # ======================================================================================================================
@@ -117,7 +118,7 @@ backup () {
 
   # use exclusions file if it is defined, and exists
   if [ -z "$RSYNC_EXCLUSIONS" ] || [ ! -f "$RSYNC_EXCLUSIONS" ]; then
-    RESULTS=$(rsync -$RSYNC_ARGS --delete "$1" "$BACKUP_DIR_TMP")
+    RESULTS=$(rsync -$RSYNC_ARGS --delete --force "$1" "$BACKUP_DIR_TMP")
   else
     RESULTS=$(rsync -$RSYNC_ARGS --exclude-from="$RSYNC_EXCLUSIONS" --delete "$1" "$BACKUP_DIR_TMP")
   fi
@@ -157,11 +158,11 @@ compress () {
     e "Compressing $BACKUP_DIR to $COMPRESS_DIR"
 
     # create subdirectory for today
-    COMPRESS_DIR_TODAY="$COMPRESS_DIR/$(date +%Y%m%d)"
+    COMPRESS_DIR_TODAY="$COMPRESS_DIR/$TODAY"
     mkdir -p "$COMPRESS_DIR_TODAY"
 
     # compress file path
-    COMPRESS_FILE="$COMPRESS_DIR_TODAY/$COMPRESS_DIR_TODAY-$COMPRESS_FILE_NOW.tar.gz"
+    COMPRESS_FILE="$COMPRESS_DIR_TODAY/$TODAY-$NOW.tar.gz"
 
     # do compression
     # need to remove '/'' prefix from BACKUP_DIR to avoid tar warning 'Removing leading `/' from member names'
