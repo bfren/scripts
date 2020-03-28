@@ -21,6 +21,7 @@ LOG="$LOG_DIR/backup-$(date +%Y%m%d).log"
 # ======================================================================================================================
 
 printf "\nStarting new backup\n" >> "$LOG"
+mkdir -p "$LOG_DIR"
 
 
 # ======================================================================================================================
@@ -42,7 +43,15 @@ echo_done () {
 
 # echo to stdout and log file, without newline terminator
 #   1: string to echo
-e () { echo -e "$1...\c" 2>&1 | tee -a "$LOG"; }
+e () { 
+
+  # get current date / time
+  printf -v date '%(%Y-%m-%d %H:%M)T' -1
+
+  # echo with date / time
+  echo -e "$date $1...\c" 2>&1 | tee -a "$LOG";
+
+}
 
 # indent and print a string to the log file
 #   1: string to print
@@ -67,8 +76,7 @@ backup () {
   mkdir -p "$BACKUP_DIR_TMP"
 
   # do rsync
-  printf -v date '%(%Y-%m-%d %H:%M)T' -1
-  e "$date Backing up $1 to $BACKUP_DIR_TMP"
+  e "Backing up $1 to $BACKUP_DIR_TMP"
 
   if [ -z "$EXCLUSIONS_TXT" ]; then
     RESULTS=$(rsync -$RSYNC_ARGS --delete "$1" "$BACKUP_DIR_TMP")
@@ -92,7 +100,7 @@ backup_loop () {
   local -n A=$1
 
   # loop
-  for [ key in "${!A[@]}" ]; do
+  for key in "${!A[@]}"; do
     backup "$key" "${A[$key]}"
   done
 
@@ -103,8 +111,7 @@ compress () {
 
   if [ ! -z "$COMPRESS_DIR" ]; then
 
-    printf -v date '%(%Y-%m-%d %H:%M)T' -1
-    e "$date Compressing $BACKUP_DIR to $COMPRESS_DIR"
+    e "Compressing $BACKUP_DIR to $COMPRESS_DIR"
 
     # create subdirectory for today
     COMPRESS_DIR_TODAY="$COMPRESS_DIR/$(date +%Y%m%d)"
