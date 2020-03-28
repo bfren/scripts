@@ -4,10 +4,10 @@
 # BACKUP DIRS
 # ======================================================================================================================
 
-# the directory where you want your backups to be stored
+# absolute path to the directory where you want your backups to be stored
 BACKUP_DIR="/path/to/backup"
 
-# the directory for storing files in your home directory (e.g. do-backup.sh)
+# absolute path to the directory for storing files in your home directory (e.g. do-backup.sh)
 BACKUP_DIR_HOME="$BACKUP_DIR/home"
 
 
@@ -18,16 +18,16 @@ BACKUP_DIR_HOME="$BACKUP_DIR/home"
 # the arguments used by rsync
 RSYNC_ARGS="rptgoiDL"
 
-# path to rsync exclusions text file
+# absolute path to rsync exclusions text file
 # if this is not set, nothing will be excluded from the backup
-RSYNC_EXCLUSIONS="/path/to/exclusions.txt"
+RSYNC_EXCLUSIONS=""
 
 
 # ======================================================================================================================
 # LOGGING
 # ======================================================================================================================
 
-# the directory where log files will be stored
+# absolute path to the directory where log files will be stored
 LOG_DIR="/path/to/log"
 
 # the number of days to keep log files for
@@ -39,7 +39,7 @@ KEEP_LOGS_FOR=28
 # COMPRESSION
 # ======================================================================================================================
 
-# the directory where you want to stored compressed backup files
+# absolute path to the directory where you want to stored compressed backup files
 # compression is done in subfolders by day, and then files by time
 # if this is not set, compression will not happen
 COMPRESS_DIR="/path/to/compress"
@@ -53,7 +53,7 @@ KEEP_COMPRESSED_FOR=28
 
 
 # ======================================================================================================================
-# DIRECTORIES
+# DIRECTORIES - use absolute paths
 # ======================================================================================================================
 
 declare -A D
@@ -62,7 +62,7 @@ D["/path/to/dir/1"]="/path/to/backup/dir"
 
 
 # ======================================================================================================================
-# FILES
+# FILES - use absolute paths
 # ======================================================================================================================
 
 declare -A F
