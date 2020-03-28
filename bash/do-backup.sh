@@ -44,8 +44,8 @@ source "$CONFIG"
 # ======================================================================================================================
 
 START=`date +%s`
-COMPRESS_FILE_NOW="$(date +%H%M)"
 LOG="$LOG_DIR/backup-$(date +%Y%m%d).log"
+COMPRESS_FILE_NOW="$(date +%H%M)"
 
 
 # ======================================================================================================================
@@ -159,8 +159,12 @@ compress () {
     COMPRESS_DIR_TODAY="$COMPRESS_DIR/$(date +%Y%m%d)"
     mkdir -p "$COMPRESS_DIR_TODAY"
 
-    # do backup
-    RESULTS=$(tar cfz - "$BACKUP_DIR" | split -b $COMPRESS_MAX_FILE_SIZE - "$COMPRESS_DIR_TODAY/$COMPRESS_FILE_NOW.tar.gz")
+	# compress file path
+	COMPRESS_FILE="$COMPRESS_DIR_TODAY/$COMPRESS_FILE_NOW.tar.gz"
+
+    # do compression
+	# need to remove '/'' prefix from BACKUP_DIR to avoid tar warning 'Removing leading `/' from member names'
+    RESULTS=$(tar cfz - -C / "${BACKUP_DIR#*/}" | split -b $COMPRESS_MAX_FILE_SIZE - "$COMPRESS_FILE")
     p "$RESULTS"
 
     # done
