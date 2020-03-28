@@ -115,7 +115,8 @@ backup () {
   # do rsync
   e "Backing up $1 to $BACKUP_DIR_TMP"
 
-  if [ -z "$EXCLUSIONS_TXT" ]; then
+  # use exclusions file if it is defined, and exists
+  if [ -z "$RSYNC_EXCLUSIONS" ] || [ ! -f "$RSYNC_EXCLUSIONS" ]; then
     RESULTS=$(rsync -$RSYNC_ARGS --delete "$1" "$BACKUP_DIR_TMP")
   else
     RESULTS=$(rsync -$RSYNC_ARGS --exclude-from="$RSYNC_EXCLUSIONS" --delete "$1" "$BACKUP_DIR_TMP")
