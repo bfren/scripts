@@ -1,3 +1,4 @@
 .vs/
+.ionide/
+
 scripts.code-workspace
-.ionide/symbolCache.db
