@@ -2,3 +2,5 @@
 .ionide/
 
 scripts.code-workspace
+
+.fake
