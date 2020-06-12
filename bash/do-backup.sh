@@ -25,14 +25,27 @@
 #
 # ======================================================================================================================
 
-VERSION=0.1.2003291022
+VERSION=0.1.2006121030
+
+
+# ======================================================================================================================
+# UILS
+# ======================================================================================================================
+
+SCRIPT_DIR=$(dirname $0)
+UTILS="$SCRIPT_DIR/utils.sh"
+if [ ! -f "$UTILS" ]; then
+  echo "Please create $UTILS before running this script"
+  exit
+fi
+
+source "$UTILS"
 
 
 # ======================================================================================================================
 # CONFIG
 # ======================================================================================================================
 
-SCRIPT_DIR=$(dirname $0)
 CONFIG="$SCRIPT_DIR/backup-config.sh"
 if [ ! -f "$CONFIG" ]; then
   echo "Please create $CONFIG before running this script"
@@ -58,40 +71,6 @@ LOG="$LOG_DIR/backup-$TODAY.log"
 
 printf "\nStarting new backup (backup script version $VERSION)\n" >> "$LOG"
 mkdir -p "$LOG_DIR"
-
-
-# ======================================================================================================================
-# FUNCTIONS - ECHO & PRINT
-# ======================================================================================================================
-
-# echo 'done' - in green to stdout, and to log file
-echo_done () {
-
-  # colour commands
-  GREEN='\033[1;32m'
-  NC='\033[0m'
-
-  # echo
-  echo -e "${GREEN}done${NC}"
-  echo "done" >> "$LOG"
-
-}
-
-# echo to stdout and log file, without newline terminator
-#   1: string to echo
-e () { 
-
-  # get current date / time
-  printf -v date '%(%Y-%m-%d %H:%M)T' -1
-
-  # echo with date / time
-  echo -e "$date $1...\c" 2>&1 | tee -a "$LOG";
-
-}
-
-# indent and print a string to the log file
-#   1: string to print
-p () { [[ ! -z "$1" ]] && printf "\n$1\n" | sed 's/^/  /' >> "$LOG"; }
 
 
 # ======================================================================================================================
@@ -181,32 +160,6 @@ compress () {
 
 
 # ======================================================================================================================
-# FUNCTIONS - CLEANUP
-# ======================================================================================================================
-
-# delete files older than a specified number of days
-#  1: description of files to delete (e.g. log)
-#  2: number of days
-#  3: directory to search
-delete_old () {
-
-  # only delete if days is greater than zero
-  if [ "$2" -gt 0 ] ; then
-
-    # use arguments to delete old files
-    e "Deleting $1 older than $2 days"
-    DELETED=$(find "$3" -mtime +$2 -type f -delete)
-    p "$DELETED"
-
-    # done
-    echo_done
-
-  fi
-
-}
-
-
-# ======================================================================================================================
 # BACKUP DIRECTORIES & FILES
 # ======================================================================================================================
 
@@ -225,10 +178,10 @@ compress
 # DELETE OLD FILES
 # ======================================================================================================================
 
-delete_old "logs" $KEEP_LOGS_FOR "$LOG_DIR"
+delete_old_files "log" $KEEP_LOGS_FOR "$LOG_DIR"
 
 if [ ! -z "$COMPRESS_DIR" ]; then
-  delete_old "compressed backups" $KEEP_COMPRESSED_FOR "$COMPRESS_DIR"
+  delete_old_files "compressed backup" $KEEP_COMPRESSED_FOR "$COMPRESS_DIR"
 fi
 
 
