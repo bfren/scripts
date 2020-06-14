@@ -51,9 +51,6 @@ e () {
 #   1: string to print
 p () { [[ ! -z "$1" ]] && SANITISED="$1" | printf "\n$SANITISED\n" | sed 's/^/  /' >> "$LOG"; }
 
-# simple print to the log file
-l () printf "$1" >> "$LOG"
-
 
 # ======================================================================================================================
 # FUNCTIONS - CLEANUP
