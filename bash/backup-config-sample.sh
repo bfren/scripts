@@ -1,6 +1,14 @@
 #!/bin/bash
 
 # ======================================================================================================================
+# BACKUP METHOD
+# ======================================================================================================================
+
+# either 'rsync' or 'rclone' (must be installed or it won't work!)
+METHOD="rclone"
+
+
+# ======================================================================================================================
 # BACKUP DIRS
 # ======================================================================================================================
 
@@ -21,6 +29,24 @@ RSYNC_ARGS="aimz"
 # absolute path to rsync exclusions text file
 # if this is not set, nothing will be excluded from the backup
 RSYNC_EXCLUSIONS=""
+
+
+# ======================================================================================================================
+# RCLONE
+# ======================================================================================================================
+
+# the arguments used by rclone
+RCLONE_ARGS="cvP"
+
+# path to the rclone configuration file (must be readable by current user)
+RCLONE_CONFIG=""
+
+# (optional) TPS limit - default is 0 (unlimited)
+RCLONE_TPS_LIMIT=0
+
+# absolute path to rclone exclusions text file
+# if this is not set, nothing will be excluded from the backup
+RCLONE_EXCLUSIONS=""
 
 
 # ======================================================================================================================

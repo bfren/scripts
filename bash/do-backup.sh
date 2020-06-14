@@ -25,7 +25,7 @@
 #
 # ======================================================================================================================
 
-VERSION=0.1.2006121030
+VERSION=0.2.2006141357
 
 
 # ======================================================================================================================
@@ -77,6 +77,46 @@ mkdir -p "$LOG_DIR"
 # FUNCTIONS - BACKUP
 # ======================================================================================================================
 
+# perform backup using rsync
+#   1: file or directory to backup
+#   2: directory to backup into
+backup_rsync() {
+
+  if [ -z "$RSYNC_EXCLUSIONS" ] || [ ! -f "$RSYNC_EXCLUSIONS" ]; then
+    RESULTS=$(rsync -$RSYNC_ARGS --delete --force "$1" "$2")
+  else
+    RESULTS=$(rsync -$RSYNC_ARGS --exclude-from="$RSYNC_EXCLUSIONS" --delete "$1" "$2")
+  fi
+
+}
+
+# perform backup using rclone
+# progress will be sent to stdout, everything else logged to the log file directly
+#   1: file or directory to backup
+#   2: directory to backup into
+backup_rclone() {
+
+  printf "\n" 2>&1 | tee -a "$LOG";
+
+  RCLONE_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
+  RCLONE_USER_AGENT="ISV|rclone.org|rclone/v$RCLONE_VERSION"
+
+  if [ -z "$RCLONE_EXCLUSIONS" ] || [ ! -f "$RCLONE_EXCLUSIONS" ]; then
+    rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT "$1" "$2"
+  else
+    # if this is the first rclone with exclusions, dump the filters
+    if [ "$RCLONE_COUNT" -eq "0" ]; then
+      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --dump filters "$1" "$2"
+      ((RCLONE_COUNT=RCLONE_COUNT+1))
+    else
+      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" "$1" "$2"
+    fi
+  fi
+
+}
+
+RCLONE_COUNT=0
+
 # perform backup
 #   1: file or directory to backup
 #   2: (optional) directory to backup into - default is $BACKUP_DIR
@@ -95,15 +135,15 @@ backup () {
   # ensure backup directory exists
   mkdir -p "$BACKUP_DIR_TMP"
 
-  # do rsync
+  # do backup
   e "Backing up $1 to $BACKUP_DIR_TMP"
 
-  # use exclusions file if it is defined, and exists
-  if [ -z "$RSYNC_EXCLUSIONS" ] || [ ! -f "$RSYNC_EXCLUSIONS" ]; then
-    RESULTS=$(rsync -$RSYNC_ARGS --delete --force "$1" "$BACKUP_DIR_TMP")
-  else
-    RESULTS=$(rsync -$RSYNC_ARGS --exclude-from="$RSYNC_EXCLUSIONS" --delete "$1" "$BACKUP_DIR_TMP")
-  fi
+  # use specified method
+  case $METHOD in 
+    "rsync") backup_rsync $1 $BACKUP_DIR_TMP;;
+    "rclone") backup_rclone $1 $BACKUP_DIR_TMP;;
+    *) p "Unknown backup method '$METHOD'.";;
+  esac
 
   # output changes with two-space indent
   p "$RESULTS"

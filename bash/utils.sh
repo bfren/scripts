@@ -49,7 +49,10 @@ e () {
 
 # indent and print a string to the log file
 #   1: string to print
-p () { [[ ! -z "$1" ]] && printf "\n$1\n" | sed 's/^/  /' >> "$LOG"; }
+p () { [[ ! -z "$1" ]] && SANITISED="$1" | printf "\n$SANITISED\n" | sed 's/^/  /' >> "$LOG"; }
+
+# simple print to the log file
+l () printf "$1" >> "$LOG"
 
 
 # ======================================================================================================================
