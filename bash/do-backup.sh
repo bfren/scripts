@@ -139,9 +139,9 @@ backup () {
   e "Backing up $1 to $BACKUP_DIR_TMP"
 
   # use specified method
-  case $METHOD in 
-    "rsync") backup_rsync $1 $BACKUP_DIR_TMP;;
-    "rclone") backup_rclone $1 $BACKUP_DIR_TMP;;
+  case $METHOD in
+    "rsync") backup_rsync "$1" "$BACKUP_DIR_TMP";;
+    "rclone") backup_rclone "$1" "$BACKUP_DIR_TMP";;
     *) p "Unknown backup method '$METHOD'.";;
   esac
 
