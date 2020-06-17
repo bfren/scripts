@@ -32,7 +32,7 @@ $Days = 14
 # ======================================================================================================================
 
 $Today = Get-Date -UFormat "%y%m%d"
-$BackupPath="$BackupRoot\$Today"
+$BackupPath = "$BackupRoot\$Today"
 
 
 # ======================================================================================================================
@@ -42,7 +42,8 @@ $BackupPath="$BackupRoot\$Today"
 #   Remove the snapshot (to save space)
 # ======================================================================================================================
 
-Write-Host "Starting VM backup to $BackupPath..."
+Write-Host "Starting new backup (backup script version $Version)..."
+Write-Host "Backing up all VMs to $BackupPath..."
 Get-VM `
 | Checkpoint-VM -Passthru `
 | Export-VMSnapshot -Path $BackupPath -Passthru `
