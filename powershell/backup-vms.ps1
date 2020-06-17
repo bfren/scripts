@@ -16,6 +16,9 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+$Version = 0.1.2006171130
+
+
 # ======================================================================================================================
 # Configuration
 # ======================================================================================================================
@@ -39,6 +42,7 @@ $BackupPath="$BackupRoot\$Today"
 #   Remove the snapshot (to save space)
 # ======================================================================================================================
 
+Write-Host "Starting VM backup to $BackupPath..."
 Get-VM `
 | Checkpoint-VM -Passthru `
 | Export-VMSnapshot -Path $BackupPath -Passthru `
@@ -52,6 +56,7 @@ Get-VM `
 #   Remove item
 # ======================================================================================================================
 
+Write-Host "Cleaning VM backups older than $Days days in $BackupRoot..."
 Get-ChildItem -Path "$BackupRoot\*.*" -Recurse `
-| Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-$days)} `
+| Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-$Days)} `
 | Remove-Item
