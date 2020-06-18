@@ -25,7 +25,7 @@
 #
 # ======================================================================================================================
 
-VERSION=0.2.2006141437
+VERSION=0.2.2006181200
 
 
 # ======================================================================================================================
@@ -215,13 +215,15 @@ compress
 
 
 # ======================================================================================================================
-# DELETE OLD FILES
+# DELETE OLD FILES AND DIRECTORIES
 # ======================================================================================================================
 
 delete_old_files "log" $KEEP_LOGS_FOR "$LOG_DIR"
+delete_old_dirs "log" $KEEP_LOGS_FOR "$LOG_DIR"
 
 if [ ! -z "$COMPRESS_DIR" ]; then
   delete_old_files "compressed backup" $KEEP_COMPRESSED_FOR "$COMPRESS_DIR"
+  delete_old_dirs "compressed backup" $KEEP_COMPRESSED_FOR "$COMPRESS_DIR"
 fi
 
 
