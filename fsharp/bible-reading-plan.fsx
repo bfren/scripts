@@ -5,13 +5,11 @@ open System.IO
 open Jeebs
 
 
-
 let year = 2021
 let path = @"Q:\Work\Personal\Bible\BCG Bible Reading Plan.txt"
 let restOnSundays = true
 let holidays =
-    [| DateRange(DateTime(year, 12, 25)) |]
-
+    [| DateRange ( DateTime(year, 12, 25) ) |]
 
 
 type Reading =
@@ -23,13 +21,14 @@ type Reading =
       Psa : string }
 
 
+type Activity = 
+    | Rest 
+    | Read of Reading
 
-type Activity = | Rest | Read of Reading
 
-
-
-type Day = { Date : DateTime ; Activity : Activity }
-
+type Day =
+    { Date : DateTime ; 
+      Activity : Activity }
 
 
 let convertArrayToReading (input : string) =
@@ -42,18 +41,15 @@ let convertArrayToReading (input : string) =
       Psa = parts.[5] }
 
 
-
 let readings =
     match File.Exists path with
     | false -> failwith "Input file not found."
     | true -> File.ReadAllLines path |> Array.map convertArrayToReading
 
 
-
 let isRestDay (date : DateTime) =
-    let isHoliday() = holidays |> Array.fold (fun h d -> h || d.Includes date) false
+    let isHoliday () = holidays |> Array.fold (fun h d -> h || d.Includes date) false
     (restOnSundays && date.DayOfWeek = DayOfWeek.Sunday) || isHoliday()
-
 
 
 let getActivity index date =
@@ -62,18 +58,15 @@ let getActivity index date =
     | false -> Read readings.[index]
 
 
-
 let whatToDo index date =
     let activity = getActivity index date
     { Date = date ; Activity = activity } , match activity with | Rest -> index | Read _ -> index + 1
-
 
 
 let getDates year =
     let startDate, endDate = DateTime(year, 1, 1), DateTime(year, 12, 31)
     let numberOfDays = (endDate - startDate).Days |> float
     [0. .. numberOfDays] |> List.map startDate.AddDays
-
 
 
 let printDay day =
@@ -84,14 +77,16 @@ let printDay day =
     | Read r -> printfn "Day %i;Ps %s;%s;%s;%s;%s" r.Day r.Psa r.OT1 r.OT2 r.Gos r.Epi
 
 
-
 let dates = getDates year
 let allowedRestDays = dates.Length - readings.Length
 let actualRestDays = dates |> List.filter isRestDay
 let remainingRestDays = allowedRestDays - actualRestDays.Length |> float
 
-if remainingRestDays > 0. then printfn "You have %.0f additional rest %s to take." remainingRestDays ("day".Pluralise remainingRestDays)
-if remainingRestDays < 0. then printfn "You have too many rest days - try again."
-else dates
-     |> List.mapFold whatToDo 0 |> fst
-     |> List.iter printDay
+match remainingRestDays with
+| days when days < 0. -> 
+    printfn "You have asked for too many rest days - please try again."
+| days -> 
+    printfn "You have %.0f additional rest %s to take." days ("day".Pluralise days)
+    dates
+    |> List.mapFold whatToDo 0 |> fst
+    |> List.iter printDay
