@@ -16,14 +16,15 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-$Version = 0.1.2006171130
+$Version = "0.2.2006211130"
 
 
 # ======================================================================================================================
 # Configuration
 # ======================================================================================================================
 
-$BackupRoot = "P:\Snapshots"
+$BackupRoot = ""
+$LogRoot = ""
 $Days = 14
 
 
@@ -32,22 +33,55 @@ $Days = 14
 # ======================================================================================================================
 
 $Today = Get-Date -UFormat "%y%m%d"
-$BackupPath = "$BackupRoot\$Today"
+$BackupPath="$BackupRoot\$Today"
+$LogFile="$LogRoot\$Today.log"
 
 
 # ======================================================================================================================
-# Get all VMs...
+# Define Functions
+# ======================================================================================================================
+
+function OutputAndLog {
+    Param([String]$Text)
+
+    $Time = Get-Date -UFormat "%Y-%m-%d %H:%M"
+
+    "$Time | $Text" | Write-Output
+    "$Time | $Text" | Out-File -FilePath $LogFile -Append
+}
+
+
+# ======================================================================================================================
+# Start
+# ======================================================================================================================
+
+OutputAndLog "Starting new backup (backup script version $Version)"
+Write-Host "Logging to $LogFile"
+
+
+# ======================================================================================================================
+# Get all VMs with Checkpoints enabled...
 #   Create a checkpoint
 #   Export the snapshot to backup path
 #   Remove the snapshot (to save space)
 # ======================================================================================================================
 
-Write-Host "Starting new backup (backup script version $Version)..."
-Write-Host "Backing up all VMs to $BackupPath..."
-Get-VM `
-| Checkpoint-VM -Passthru `
-| Export-VMSnapshot -Path $BackupPath -Passthru `
-| Remove-VMSnapshot
+$VMs = Get-VM | Where-Object {$_.CheckpointType -ne "Disabled"}
+foreach ($VM in $VMs)
+{
+    OutputAndLog "$VM"
+
+    OutputAndLog " .. creating checkpoint"
+    $Snapshot = $VM | Checkpoint-VM -Passthru
+
+    OutputAndLog " .. exporting to '$BackupPath'"
+    $Snapshot | Export-VMSnapshot -Path $BackupPath
+
+    OutputAndLog " .. removing snapshot"
+    $Snapshot | Remove-VMSnapshot
+    
+    OutputAndLog "complete."
+}
 
 
 # ======================================================================================================================
@@ -57,7 +91,13 @@ Get-VM `
 #   Remove item
 # ======================================================================================================================
 
-Write-Host "Cleaning VM backups older than $Days days in $BackupRoot..."
-Get-ChildItem -Path "$BackupRoot\*.*" -Recurse `
-| Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-$Days)} `
-| Remove-Item
+OutputAndLog "Cleaning VM backups older than $Days days in $BackupRoot..."
+
+$Files = Get-ChildItem -Path $BackupRoot -Recurse | Where-Object {$_.LastWriteTime -lt (Get-Date).AddDays(-$Days)}
+foreach ($File in $Files)
+{
+    OutputAndLog " .. removing $File"
+    $File | Remove-Item
+}
+
+OutputAndLog "done"
