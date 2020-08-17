@@ -1,0 +1,1 @@
+New-VirtualDisk -StoragePoolFriendlyName "Data" -ProvisioningType Fixed -Interleave 32kb -FriendlyName Parity -Size 3TB -ResiliencySettingName Parity -NumberOfColumns 4
