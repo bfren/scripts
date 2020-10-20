@@ -18,7 +18,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-VERSION=0.1.2010201515
+VERSION=0.1.2010201715
 
 
 # ======================================================================================================================
@@ -26,6 +26,9 @@ VERSION=0.1.2010201515
 # ======================================================================================================================
 
 BACKUP_PATH=/tmp/backup
+DATE=$(date '+%Y%m%d%H%M')
+THIS_BACKUP_PATH=${BACKUP_PATH}/${DATE}
+BACKUP_COMPRESS_FILES=1
 BACKUP_KEEP_FOR_DAYS=14
 
 
@@ -35,7 +38,7 @@ BACKUP_KEEP_FOR_DAYS=14
 
 SCRIPT_DIR=$(dirname $0)
 UTILS="$SCRIPT_DIR/utils.sh"
-if [ ! -f "$UTILS" ]; then
+if [ ! -f "$UTILS" ] ; then
   echo "Please create $UTILS before running this script"
   exit
 fi
@@ -49,8 +52,7 @@ source "$UTILS"
 
 DATABASES=$(mysql --password=${MARIADB_ROOT_PASSWORD} --user=root -e 'show databases;' | sed 1d | grep -v -E "(mysql|information_schema|performance_schema)")
 
-if [ "${DATABASES}" == "" ]
-then
+if [ "${DATABASES}" == "" ] ; then
   exit
 fi
 
@@ -59,8 +61,7 @@ fi
 # GET BACKUP PATH
 # ======================================================================================================================
 
-if [ ! -d ${BACKUP_PATH} ]
-then
+if [ ! -d ${BACKUP_PATH} ] ; then
   mkdir -p ${BACKUP_PATH}
   chmod 740 ${BACKUP_PATH}
 fi
@@ -74,8 +75,7 @@ cd /tmp
 
 for DATABASE in ${DATABASES}
 do
-  if [ -f /tmp/${DATABASE}.sql ]
-  then
+  if [ -f /tmp/${DATABASE}.sql ] ; then
     rm -f /tmp/${DATABASE}.sql
   fi
 
@@ -87,18 +87,19 @@ done
 # MOVE BACKUPS TO BACKUP FOLDER AND GZIP
 # ======================================================================================================================
 
-DATE=$(date '+%Y%m%d%H%M')
-mkdir -p ${BACKUP_PATH}/${DATE}
-chmod 740 ${BACKUP_PATH}/${DATE}
-cd ${BACKUP_PATH}/${DATE}
+mkdir -p ${THIS_BACKUP_PATH}
+chmod 740 ${THIS_BACKUP_PATH}
+cd ${THIS_BACKUP_PATH}
 
 for DATABASE in ${DATABASES}
 do
-  if [ -f /tmp/${DATABASE}.sql ]
-  then
+  if [ -f /tmp/${DATABASE}.sql ] ; then
     mv /tmp/${DATABASE}.sql ${DATABASE}.sql
-    gzip ${DATABASE}.sql
-    chmod 640 ${DATABASE}.sql.gz
+
+    if [ ${BACKUP_COMPRESS_FILES} -eq "1" ] ; then
+      gzip ${DATABASE}.sql
+      chmod 640 ${DATABASE}.sql.gz
+    fi
   fi
 done
 
