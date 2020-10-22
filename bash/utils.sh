@@ -18,6 +18,9 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+VERSION=0.1.2010220800
+
+
 # ======================================================================================================================
 # FUNCTIONS - ECHO & PRINT
 # ======================================================================================================================
@@ -40,10 +43,10 @@ echo_done () {
 e () { 
 
   # get current date / time
-  printf -v date '%(%Y-%m-%d %H:%M)T' -1
+  DATE=$(date '+%Y-%m-%d %H:%M')
 
   # echo with date / time
-  echo -e "$date $1...\c" 2>&1 | tee -a "$LOG";
+  echo -e "$DATE $1...\c" 2>&1 | tee -a "$LOG";
 
 }
 
@@ -67,7 +70,8 @@ delete_old_files () {
 
     # use arguments to delete old files
     e "Deleting $1 files older than $2 days"
-    DELETED=$(find "$3" -type f -mtime +$2 -delete)
+    MIN=$((60*24*$2))
+    DELETED=$(find "$3" -type f -mmin +$MIN -delete)
     p "$DELETED"
 
     # done
@@ -88,7 +92,8 @@ delete_old_dirs () {
 
     # use arguments to delete old directories
     e "Deleting $1 directories older than $2 days"
-    DELETED=$(find $3/* -type d -mtime +$2 | xargs rm -rf)
+    MIN=$((60*24*$2))
+    DELETED=$(find $3/* -type d -mmin +$MIN | xargs rm -rf)
     p "$DELETED"
 
     # done
