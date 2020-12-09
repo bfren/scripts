@@ -58,12 +58,11 @@ Write-Host "Logging to $LogFile"
 
 # ======================================================================================================================
 # Get all VMs...
-#   Create a checkpoint
-#   Export the snapshot to backup path
-#   Remove the snapshot (to save space)
+#   Where AutomaticStartAction is set to 'Start'
+#   Start VM
 # ======================================================================================================================
 
-$VMs = Get-VM | Where-Object {$_.CheckpointType -ne "Disabled"}
+$VMs = Get-VM | Where-Object {$_.AutomaticStartAction -eq "Start"}
 foreach ($VM in $VMs)
 {
     OutputAndLog "Starting $VM..."
