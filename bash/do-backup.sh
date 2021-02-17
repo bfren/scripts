@@ -102,14 +102,14 @@ backup_rclone() {
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v$RCLONE_VERSION"
 
   if [ -z "$RCLONE_EXCLUSIONS" ] || [ ! -f "$RCLONE_EXCLUSIONS" ]; then
-    rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT "$1" "$2"
+    rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --delete-during "$1" "$2"
   else
     # if this is the first rclone with exclusions, dump the filters
     if [ "$RCLONE_COUNT" -eq "0" ]; then
-      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --dump filters "$1" "$2"
+      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --delete-excluded --delete-during --dump filters "$1" "$2"
       ((RCLONE_COUNT=RCLONE_COUNT+1))
     else
-      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" "$1" "$2"
+      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --delete-excluded --delete-during "$1" "$2"
     fi
   fi
 
