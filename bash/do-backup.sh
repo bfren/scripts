@@ -2,7 +2,7 @@
 
 # THE MIT LICENSE (MIT)
 #
-# Copyright © 2020 bcg|design
+# Copyright © 2021 bcg|design
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
@@ -25,7 +25,7 @@
 #
 # ======================================================================================================================
 
-VERSION=0.2.2102171320
+BACKUP_VERSION=0.2.2102171400
 
 
 # ======================================================================================================================
@@ -69,7 +69,7 @@ LOG="$LOG_DIR/backup-$TODAY.log"
 # START
 # ======================================================================================================================
 
-printf "\nStarting new backup (backup script version $VERSION)\n" >> "$LOG"
+printf "\nStarting new backup (backup script version $BACKUP_VERSION)\n" >> "$LOG"
 mkdir -p "$LOG_DIR"
 
 
@@ -98,18 +98,24 @@ backup_rclone() {
 
   printf "\n" 2>&1 | tee -a "$LOG";
 
-  RCLONE_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
-  RCLONE_USER_AGENT="ISV|rclone.org|rclone/v$RCLONE_VERSION"
+  RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
+  RCLONE_USER_AGENT="ISV|rclone.org|rclone/v$RCLONE_BACKUP_VERSION"
 
-  if [ -z "$RCLONE_EXCLUSIONS" ] || [ ! -f "$RCLONE_EXCLUSIONS" ]; then
-    rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --delete-during "$1" "$2"
+  EXC=$RCLONE_EXCLUSIONS
+  ARG=$RCLONE_ARGS
+  CFG=$RCLONE_CONFIG
+  UAG=$RCLONE_USER_AGENT
+  TPS=$RCLONE_TPS_LIMIT
+
+  if [ -z "$EXC" ] || [ ! -f "$EXC" ]; then
+    rclone sync -$ARG --config="$CFG" --log-file="$LOG" --user-agent "$UAG" --tpslimit $TPS --delete-during "$1" "$2"
   else
     # if this is the first rclone with exclusions, dump the filters
     if [ "$RCLONE_COUNT" -eq "0" ]; then
-      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --delete-excluded --delete-during --dump filters "$1" "$2"
+      rclone sync -$ARG --config="$CFG" --log-file="$LOG" --user-agent "$UAG" --tpslimit $TPS --exclude-from "$EXC" --delete-excluded --delete-during --dump filters "$1" "$2"
       ((RCLONE_COUNT=RCLONE_COUNT+1))
     else
-      rclone sync -$RCLONE_ARGS --config="$RCLONE_CONFIG" --log-file="$LOG" --user-agent "$RCLONE_USER_AGENT" --tpslimit $RCLONE_TPS_LIMIT --exclude-from "$RCLONE_EXCLUSIONS" --delete-excluded --delete-during "$1" "$2"
+      rclone sync -$ARG --config="$CFG" --log-file="$LOG" --user-agent "$UAG" --tpslimit $TPS --exclude-from "$EXC" --delete-excluded --delete-during "$1" "$2"
     fi
   fi
 
