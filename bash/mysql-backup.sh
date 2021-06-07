@@ -2,7 +2,7 @@
 
 # THE MIT LICENSE (MIT)
 #
-# Copyright © 2020 bcg|design
+# Copyright © 2020-2021 bfren.uk
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
@@ -18,7 +18,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-VERSION=0.1.2010201715
+VERSION=0.1.2106070845
 
 
 # ======================================================================================================================
