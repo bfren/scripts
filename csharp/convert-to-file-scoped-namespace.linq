@@ -1,18 +1,41 @@
 <Query Kind="Statements">
-  <NuGetReference>Jeebs</NuGetReference>
-  <NuGetReference>Jeebs.Option</NuGetReference>
-  <NuGetReference>Jeebs.Random</NuGetReference>
-  <Namespace>F</Namespace>
-  <Namespace>Jeebs</Namespace>
-  <Namespace>Jeebs.Linq</Namespace>
-  <Namespace>static F.OptionF</Namespace>
+  <IncludeUncapsulator>false</IncludeUncapsulator>
 </Query>
+
+// Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
+
+
+var version = "0.1.2109020900";
+
+
+// =========================================================================================================================== //
+//                                                                                                                             //
+// Script settings - adjust these to suit your environment.                                                                    //
+//                                                                                                                             //
+// =========================================================================================================================== //
 
 // Safety switch - set to true to save changes
 var disengageSafetySwitch = false;
 
 // Update all files in this path
 var path = @"";
+
+// Ignore files containing any of these literals
+var ignoreFiles = new List<string>
+{
+	@"\obj\",
+	"Resources.Designer.cs"
+};
+
+
+// =========================================================================================================================== //
+//                                                                                                                             //
+// From this point on, here be dragons!                                                                                        //
+//                                                                                                                             //
+// =========================================================================================================================== //
+
+// Output version
+version.Dump("Script version");
 
 // Alias new line
 var nl = Environment.NewLine;
@@ -21,13 +44,6 @@ var nl = Environment.NewLine;
 var allNamespacesRe = new Regex(@$"namespace ([a-z_A-Z\.]+){nl}{{", RegexOptions.Singleline | RegexOptions.Compiled);
 var componentsRe = new Regex(@$"(.*)namespace ([a-z_A-Z\.]+){nl}{{(.*)}}", RegexOptions.Singleline | RegexOptions.Compiled);
 var firstTabRe = new Regex("^\t", RegexOptions.Compiled);
-
-// Ignore filenames
-var ignoreFiles = new List<string>
-{
-	@"\obj\",
-	"Resources.Designer.cs"
-};
 
 // Check path
 if (string.IsNullOrWhiteSpace(path))
