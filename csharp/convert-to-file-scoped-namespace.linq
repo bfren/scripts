@@ -9,10 +9,10 @@
 </Query>
 
 // Safety switch - set to true to save changes
-var disengageSafetySwitch = true;
+var disengageSafetySwitch = false;
 
 // Update all files in this path
-var path = @"Q:\src\jeebs\v6\src\";
+var path = @"";
 
 // Alias new line
 var nl = Environment.NewLine;
@@ -28,6 +28,13 @@ var ignoreFiles = new List<string>
 	@"\obj\",
 	"Resources.Designer.cs"
 };
+
+// Check path
+if (string.IsNullOrWhiteSpace(path))
+{
+	"Path cannot be empty.".Dump();
+	return;
+}
 
 // Check each file
 var files = Directory.GetFiles(path, "*.cs", SearchOption.AllDirectories);
