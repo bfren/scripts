@@ -1,5 +1,9 @@
 # Bash Scripts
 
+## Add SSH key
+
+`echo $(wget -q -O - "https://github.com/bfren.keys") >> ~/.ssh/authorized_keys`
+
 ## Backup
 
 Server backup script (using `rsync` or `rclone`) with the following options:
