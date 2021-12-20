@@ -9,7 +9,7 @@
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.2.2106070845
+BACKUP_VERSION=0.2.2112200745
 
 
 # ======================================================================================================================
@@ -125,7 +125,9 @@ backup () {
   [[ -n "$2" ]] && BACKUP_DIR_TMP="$2"
 
   # ensure backup directory exists
-  mkdir -p "$BACKUP_DIR_TMP"
+  if [[ "${METHOD}" != "rclone" ]] || [[ "${BACKUP_DIR_TMP}" != *":"* ]] ; then
+    mkdir -p "$BACKUP_DIR_TMP"
+  fi
 
   # do backup
   e "Backing up $1 to $BACKUP_DIR_TMP"
