@@ -1,6 +1,5 @@
-#r "Q:/src/jeebs/v4/Libraries/Jeebs/bin/Release/netstandard2.1/Jeebs.dll"
+#r "nuget: Jeebs"
 
-open System
 open System.IO
 open Jeebs
 
@@ -14,11 +13,11 @@ let holidays =
 
 type Reading =
     { Day : int
+      Psa : string
       OT1 : string
       OT2 : string
       Gos : string
-      Epi : string
-      Psa : string }
+      Epi : string }
 
 
 type Activity = 
@@ -33,12 +32,12 @@ type Day =
 
 let convertArrayToReading (input : string) =
     let parts = input.Split '\t'
-    { Day = parts.[0] |> int
-      OT1 = parts.[1]
-      OT2 = parts.[2]
-      Gos = parts.[3]
-      Epi = parts.[4]
-      Psa = parts.[5] }
+    { Day = parts[0] |> int
+      Psa = parts[1]
+      OT1 = parts[2]
+      OT2 = parts[3]
+      Gos = parts[4]
+      Epi = parts[5] }
 
 
 let readings =
@@ -55,7 +54,7 @@ let isRestDay (date : DateTime) =
 let getActivity index date =
     match isRestDay date || index >= readings.Length with
     | true -> Rest
-    | false -> Read readings.[index]
+    | false -> Read readings[index]
 
 
 let whatToDo index date =
@@ -65,7 +64,8 @@ let whatToDo index date =
 
 let getDates year =
     let startDate, endDate = DateTime(year, 1, 1), DateTime(year, 12, 31)
-    let numberOfDays = (endDate - startDate).Days |> float
+    let range = endDate - startDate
+    let numberOfDays = range.Days |> float
     [0. .. numberOfDays] |> List.map startDate.AddDays
 
 
@@ -80,13 +80,13 @@ let printDay day =
 let dates = getDates year
 let allowedRestDays = dates.Length - readings.Length
 let actualRestDays = dates |> List.filter isRestDay
-let remainingRestDays = allowedRestDays - actualRestDays.Length |> float
+let remainingRestDays = allowedRestDays - actualRestDays.Length |> int64
 
 match remainingRestDays with
-| days when days < 0. -> 
+| days when days < 0L -> 
     printfn "You have asked for too many rest days - please try again."
 | days -> 
-    printfn "You have %.0f additional rest %s to take." days ("day".Pluralise days)
+    printfn "You have %i additional rest %s to take." days ("day".Pluralise days)
     dates
     |> List.mapFold whatToDo 0 |> fst
     |> List.iter printDay
