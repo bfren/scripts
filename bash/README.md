@@ -2,7 +2,7 @@
 
 ## Add SSH keys
 
-`echo $(wget -q -O - "https://github.com/bfren.keys") >> ~/.ssh/authorized_keys`
+`wget -q -O - "https://github.com/bfren.keys" >> ~/.ssh/authorized_keys`
 
 ## Backup
 
