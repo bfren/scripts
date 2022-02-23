@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.3.2302221530
+BACKUP_VERSION=0.3.2302221550
 
 
 # ======================================================================================================================
@@ -154,7 +154,6 @@ backup () {
 
 # loop through backup array
 #   1: associative array of directories / files to backup
-#   2: backup type (d = directory, f = file)
 backup_loop () {
 
   # get array
@@ -162,7 +161,7 @@ backup_loop () {
 
   # loop
   for KEY in "${!A[@]}"; do
-    backup "${KEY}" "${A[$KEY]}" "${2}"
+    backup "${KEY}" "${A[$KEY]}"
   done
 
 }
