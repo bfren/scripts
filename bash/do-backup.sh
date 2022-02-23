@@ -132,7 +132,7 @@ backup () {
   FROM="${1}"
 
   # use default backup dir if not set
-  TO=`basename(${2:-${BACKUP_DIR_ROOT}${FROM}})`
+  TO=`dirname ${2:-${BACKUP_DIR_ROOT}${FROM}}`
 
   # do backup
   e "Backing up ${FROM} to ${TO}"
