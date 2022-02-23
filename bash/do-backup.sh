@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.3.2302221550
+BACKUP_VERSION=0.3.230220221600
 
 
 # ======================================================================================================================
@@ -132,7 +132,12 @@ backup () {
   FROM="${1}"
 
   # use default backup dir if not set
-  TO=`dirname ${2:-${BACKUP_DIR_ROOT}${FROM}}`
+  if [ -d ${FROM} ] ; then
+    BACKUP_PATH=${FROM}
+  else
+    BACKUP_PATH=`dirname ${FROM}`
+  fi
+  TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}
 
   # do backup
   e "Backing up ${FROM} to ${TO}"
