@@ -52,7 +52,8 @@ RCLONE_EXCLUSIONS=""
 # ======================================================================================================================
 
 # absolute path to the directory where log files will be stored
-LOG_DIR="/path/to/log"
+# if this is not set, logs will be created a ./log subdirectory of the current directory
+LOG_DIR=""
 
 # the number of days to keep log files for
 # if this is 0, no files will be deleted
@@ -66,7 +67,7 @@ KEEP_LOGS_FOR=28
 # absolute path to the directory where you want to stored compressed backup files
 # compression is done in subfolders by day, and then files by time
 # if this is not set, compression will not happen
-COMPRESS_DIR="/path/to/compress"
+COMPRESS_DIR=""
 
 # the maximum size of compressed files
 COMPRESS_MAX_FILE_SIZE=1024m
