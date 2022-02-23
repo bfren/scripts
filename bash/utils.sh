@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.1.2102171400
+UTILS_VERSION=0.2.2302221500
 
 
 # ======================================================================================================================
@@ -18,7 +18,7 @@ echo_done () {
 
   # echo
   echo -e "${GREEN}done${NC}"
-  echo "done" >> "$LOG"
+  echo "done" >> "${LOG}"
 
 }
 
@@ -30,13 +30,13 @@ e () {
   DATE=$(date '+%Y-%m-%d %H:%M')
 
   # echo with date / time
-  echo -e "$DATE $1...\c" 2>&1 | tee -a "$LOG";
+  echo -e "${DATE} ${1}...\c" 2>&1 | tee -a "${LOG}";
 
 }
 
 # indent and print a string to the log file
 #   1: string to print
-p () { [[ ! -z "$1" ]] && SANITISED="$1" | printf "\n$SANITISED\n" | sed 's/^/  /' >> "$LOG"; }
+p () { [[ ! -z "${1}" ]] && SANITISED="${1}" | printf "\n${SANITISED}\n" | sed 's/^/  /' >> "${LOG}"; }
 
 
 # ======================================================================================================================
@@ -50,13 +50,13 @@ p () { [[ ! -z "$1" ]] && SANITISED="$1" | printf "\n$SANITISED\n" | sed 's/^/  
 delete_old_files () {
 
   # only delete if days is greater than zero
-  if [ "$2" -gt 0 ] ; then
+  if [ "${2}" -gt 0 ] ; then
 
     # use arguments to delete old files
-    e "Deleting $1 files older than $2 days"
-    MIN=$((60*24*$2))
-    DELETED=$(find "$3" -type f -mmin +$MIN -delete)
-    p "$DELETED"
+    e "Deleting ${1} files older than ${2} days"
+    MIN=$((60*24*${2}))
+    DELETED=$(find "${3}" -type f -mmin +${MIN} -delete)
+    p "${DELETED}"
 
     # done
     echo_done
@@ -72,13 +72,13 @@ delete_old_files () {
 delete_old_dirs () {
 
   # only delete if days is greater than zero
-  if [ "$2" -gt 0 ] ; then
+  if [ "${2}" -gt 0 ] ; then
 
     # use arguments to delete old directories
-    e "Deleting $1 directories older than $2 days"
-    MIN=$((60*24*$2))
-    DELETED=$(find $3/* -type d -mmin +$MIN | xargs rm -rf)
-    p "$DELETED"
+    e "Deleting ${1} directories older than ${2} days"
+    MIN=$((60*24*${2}))
+    DELETED=$(find $3/* -type d -mmin +${MIN} | xargs rm -rf)
+    p "${DELETED}"
 
     # done
     echo_done
