@@ -132,7 +132,7 @@ backup () {
   FROM="${1}"
 
   # use default backup dir if not set
-  TO="${2:-${BACKUP_DIR_ROOT}${FROM}}"
+  TO=`basename(${2:-${BACKUP_DIR_ROOT}${FROM}})`
 
   # do backup
   e "Backing up ${FROM} to ${TO}"
@@ -154,6 +154,7 @@ backup () {
 
 # loop through backup array
 #   1: associative array of directories / files to backup
+#   2: backup type (d = directory, f = file)
 backup_loop () {
 
   # get array
@@ -161,7 +162,7 @@ backup_loop () {
 
   # loop
   for KEY in "${!A[@]}"; do
-    backup "${KEY}" "${A[$KEY]}"
+    backup "${KEY}" "${A[$KEY]}" "${2}"
   done
 
 }
