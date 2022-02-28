@@ -11,7 +11,7 @@ set -u
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.3.280220281215
+BACKUP_VERSION=0.3.280220281530
 
 
 # ======================================================================================================================
@@ -34,7 +34,7 @@ source "${UTILS}"
 
 RUNNING="${SCRIPT_DIR}/running"
 if [ -f "${RUNNING}" ] ; then
-  echo "Backup already running"
+  e "Backup already running"
   exit
 fi
 
@@ -47,7 +47,7 @@ touch "${RUNNING}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
 if [ ! -f "${CONFIG}" ]; then
-  echo "Please create ${CONFIG} before running this script"
+  e "Please create ${CONFIG} before running this script"
   exit
 fi
 
@@ -69,7 +69,7 @@ LOG="${LOG_DIR}/backup-${TODAY}.log"
 # START
 # ======================================================================================================================
 
-printf "\nStarting new backup (backup script version ${BACKUP_VERSION})\n" >> "${LOG}"
+p "Starting new backup (backup script version ${BACKUP_VERSION})"
 
 
 # ======================================================================================================================
