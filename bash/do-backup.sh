@@ -35,7 +35,7 @@ source "${UTILS}"
 START=`date +%s`
 TODAY="$(date +%Y%m%d)"
 NOW="$(date +%H%M)"
-LOG_DIR=${SCRIPT_DIR}/log
+LOG_DIR="${SCRIPT_DIR}/log"
 LOG="${LOG_DIR}/backup-${TODAY}.log"
 
 

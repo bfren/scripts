@@ -49,6 +49,8 @@ p () { [[ ! -z "${1}" ]] && printf "\n${1}\n" | sed 's/^/  /' >> "${LOG}"; }
 #  3: directory to search
 delete_old_files () {
 
+  [[ -z "${3}" ]] && return
+
   # only delete if days is greater than zero
   if [ "${2}" -gt 0 ] ; then
 
@@ -70,6 +72,8 @@ delete_old_files () {
 #  2: number of days
 #  3: root directory to search - DO NOT end with trailing slash ("/*" will be added automatically)
 delete_old_dirs () {
+  
+  [[ -z "${3}" ]] && return
 
   # only delete if days is greater than zero
   if [ "${2}" -gt 0 ] ; then
@@ -77,7 +81,7 @@ delete_old_dirs () {
     # use arguments to delete old directories
     e "Deleting ${1} directories older than ${2} days"
     MIN=$((60*24*${2}))
-    DELETED=$(find $3/* -type d -mmin +${MIN} | xargs rm -rf)
+    DELETED=$(find "$3/*" -type d -mmin +${MIN} | xargs rm -rf)
     p "${DELETED}"
 
     # done
