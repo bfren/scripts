@@ -25,6 +25,9 @@ if [ ! -f "${UTILS}" ]; then
   exit
 fi
 
+echo "== CONFIG ======================================="
+echo "================================================="
+echo "Utils: ${UTILS}."
 source "${UTILS}"
 
 
@@ -38,6 +41,9 @@ NOW="$(date +%H%M)"
 LOG_DIR="${SCRIPT_DIR}/log"
 LOG="${LOG_DIR}/backup-${TODAY}.log"
 
+echo "Log directory: ${LOG_DIR}."
+echo "Log file: ${LOG}."
+
 
 # ======================================================================================================================
 # RUNNING
@@ -49,6 +55,7 @@ if [ -f "${RUNNING}" ] ; then
   exit
 fi
 
+echo "Running file: ${RUNNING}."
 touch "${RUNNING}"
 
 
@@ -62,6 +69,7 @@ if [ ! -f "${CONFIG}" ]; then
   exit
 fi
 
+echo "Configuration: ${CONFIG}."
 source "${CONFIG}"
 
 
@@ -69,6 +77,8 @@ source "${CONFIG}"
 # START
 # ======================================================================================================================
 
+echo "== BACKUP ======================================="
+echo "================================================="
 p "Starting new backup (backup script version ${BACKUP_VERSION})"
 
 
