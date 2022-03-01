@@ -45,7 +45,7 @@ LOG="${LOG_DIR}/backup-${TODAY}.log"
 
 RUNNING="${SCRIPT_DIR}/running"
 if [ -f "${RUNNING}" ] ; then
-  e "Backup already running"
+  e "Backup already running" && echo ""
   exit
 fi
 
@@ -58,7 +58,7 @@ touch "${RUNNING}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
 if [ ! -f "${CONFIG}" ]; then
-  e "Please create ${CONFIG} before running this script"
+  e "Please create ${CONFIG} before running this script" && echo ""
   exit
 fi
 
