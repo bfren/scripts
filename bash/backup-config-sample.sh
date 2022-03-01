@@ -51,10 +51,6 @@ RCLONE_EXCLUSIONS=""
 # LOGGING
 # ======================================================================================================================
 
-# absolute path to the directory where log files will be stored
-# if this is not set, logs will be created a ./log subdirectory of the current directory
-LOG_DIR=""
-
 # the number of days to keep log files for
 # if this is 0, no files will be deleted
 KEEP_LOGS_FOR=28
