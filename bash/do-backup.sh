@@ -11,7 +11,7 @@ set -u
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.3.2203011020
+BACKUP_VERSION=0.3.220311.1715
 
 
 # ======================================================================================================================
@@ -246,12 +246,10 @@ compress
 # DELETE OLD FILES AND DIRECTORIES
 # ======================================================================================================================
 
-delete_old_files "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
-delete_old_dirs "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
+delete_old "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
 
 if [ ! -z "${COMPRESS_DIR}" ]; then
-  delete_old_files "compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
-  delete_old_dirs "compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
+  delete_old"compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
 fi
 
 

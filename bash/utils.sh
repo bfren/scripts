@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.3.2203010845
+UTILS_VERSION=0.3.220311.1715
 
 
 # ======================================================================================================================
@@ -43,45 +43,29 @@ p () { [[ ! -z "${1}" ]] && printf "\n${1}\n" | sed 's/^/  /' >> "${LOG}"; }
 # FUNCTIONS - CLEANUP
 # ======================================================================================================================
 
-# delete files older than a specified number of days
-#  1: description of files to delete (e.g. log)
+# delete files and directories older than a specified number of days
+#  1: description of what is being deleted (e.g. log)
 #  2: number of days
 #  3: directory to search
-delete_old_files () {
+delete_old () {
 
+  # ensure the directory is not empty
   [[ -z "${3}" ]] && return
 
   # only delete if days is greater than zero
   if [ "${2}" -gt 0 ] ; then
+
+    # calculate minutes from the number of days
+    MIN=$((60*24*${2}))
 
     # use arguments to delete old files
     e "Deleting ${1} files older than ${2} days"
-    MIN=$((60*24*${2}))
     DELETED=$(find "${3}" -type f -mmin +${MIN} -delete)
     p "${DELETED}"
 
-    # done
-    echo_done
-
-  fi
-
-}
-
-# delete sub-directories (and contents) older than a specified number of days
-#  1: description of directories to delete (e.g. backup)
-#  2: number of days
-#  3: root directory to search - DO NOT end with trailing slash ("/*" will be added automatically)
-delete_old_dirs () {
-  
-  [[ -z "${3}" ]] && return
-
-  # only delete if days is greater than zero
-  if [ "${2}" -gt 0 ] ; then
-
     # use arguments to delete old directories
     e "Deleting ${1} directories older than ${2} days"
-    MIN=$((60*24*${2}))
-    DELETED=$(find "$3/*" -type d -mmin +${MIN} | xargs rm -rf)
+    DELETED=$(find "${3}" -type d -mmin +${MIN} | xargs rm -r)
     p "${DELETED}"
 
     # done
