@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1725
+BACKUP_VERSION=0.4.220314.1727
 
 
 # ======================================================================================================================
@@ -59,21 +59,21 @@ e "Backup method: ${METHOD}"
 if [ "${METHOD}" = "rsync" ] ; then
 
   e "rsync arguments: ${RSYNC_ARGS}"
-  
+
   RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rsync exclusions: ${RSYNC_EXCLUSIONS}"
-  [[ -f "${RSYNC_EXCLUSIONS} "]] && e "found" || e_error "not found"
+  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e "found" || e_error "not found"
 
 elif [ "${METHOD}" = "rclone" ] ; then
 
   e "rclone arguments: ${RCLONE_ARGS}"
   e_cont "rclone config: ${RCLONE_CONFIG}"
-  [[ -f "${RCLONE_CONFIG} "]] && e "found" || e_error "not found"
+  [[ -f "${RCLONE_CONFIG}" ]] && e "found" || e_error "not found"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
-  
+
   RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rclone exclusions: ${RCLONE_EXCLUSIONS}"
-  [[ -f "${RCLONE_EXCLUSIONS} "]] && e "found" || e_error "not found"
+  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e "found" || e_error "not found"
 
 else
 
@@ -178,7 +178,7 @@ backup () {
   fi
   FROM="${1}"
 
-  # use from path as the backup path, so the backup mirrors the filesystem 
+  # use from path as the backup path, so the backup mirrors the filesystem
   if [ -d ${FROM} ] ; then
     BACKUP_PATH=${FROM}
   else
