@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1735
+BACKUP_VERSION=0.4.220314.1740
 
 
 # ======================================================================================================================
@@ -127,9 +127,9 @@ backup_rsync() {
   EXC=${RSYNC_EXCLUSIONS}
 
   if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
-    RESULTS=$(rsync -${RSYNC_ARGS} --delete --force "${FROM}" "${TO}")
+    RESULTS=$(rsync -${RSYNC_ARGS} --delete --force "${FROM}" "${TO}" || echo "Failed")
   else
-    RESULTS=$(rsync -${RSYNC_ARGS} --exclude-from="${EXC}" --delete "${FROM}" "${TO}}")
+    RESULTS=$(rsync -${RSYNC_ARGS} --exclude-from="${EXC}" --delete "${FROM}" "${TO}}" || echo "Failed")
   fi
 
 }
@@ -142,7 +142,6 @@ backup_rclone() {
 
   RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v${RCLONE_BACKUP_VERSION}"
-  e "rclone user agent: ${RCLONE_USER_AGENT}"
 
   EXC=${RCLONE_EXCLUSIONS}
   ARG=${RCLONE_ARGS}
@@ -156,14 +155,15 @@ backup_rclone() {
   TO="${2}"
 
   if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
-    rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --delete-during "${FROM}" "${TO}"
+    rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --delete-during "${FROM}" "${TO}" || true
   else
-    # if this is the first rclone with exclusions, dump the filters
+    # if this is the first rclone with exclusions, echo the user agent and dump the filters
     if [ "${RCLONE_COUNT}" -eq "0" ]; then
-      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during --dump filters "${FROM}" "${TO}"
+      e "rclone user agent: ${RCLONE_USER_AGENT}"
+      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during --dump filters "${FROM}" "${TO}" || true
       ((RCLONE_COUNT=RCLONE_COUNT+1))
     else
-      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during "${FROM}" "${TO}"
+      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during "${FROM}" "${TO}" || true
     fi
   fi
 
