@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1740
+BACKUP_VERSION=0.4.220314.1745
 
 
 # ======================================================================================================================
@@ -274,7 +274,7 @@ compress
 delete_old "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
 
 if [ ! -z "${COMPRESS_DIR}" ]; then
-  delete_old"compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
+  delete_old "compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
 fi
 
 
@@ -283,7 +283,7 @@ fi
 # ======================================================================================================================
 
 e "Removing ${RUNNING}"
-rm -f "${RUNNING}"
+rm ${RUNNING}
 
 END=`date +%s`
 ((H=(${END} - ${START}) / 3600))
