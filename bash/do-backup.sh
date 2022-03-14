@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1727
+BACKUP_VERSION=0.4.220314.1735
 
 
 # ======================================================================================================================
@@ -61,19 +61,19 @@ if [ "${METHOD}" = "rsync" ] ; then
   e "rsync arguments: ${RSYNC_ARGS}"
 
   RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
-  e "rsync exclusions: ${RSYNC_EXCLUSIONS}"
-  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e "found" || e_error "not found"
+  e_cont "rsync exclusions: ${RSYNC_EXCLUSIONS}"
+  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e_done "found" || e_error "not found"
 
 elif [ "${METHOD}" = "rclone" ] ; then
 
   e "rclone arguments: ${RCLONE_ARGS}"
   e_cont "rclone config: ${RCLONE_CONFIG}"
-  [[ -f "${RCLONE_CONFIG}" ]] && e "found" || e_error "not found"
+  [[ -f "${RCLONE_CONFIG}" ]] && e_done "found" || e_error "not found"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
 
   RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
-  e "rclone exclusions: ${RCLONE_EXCLUSIONS}"
-  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e "found" || e_error "not found"
+  e_cont "rclone exclusions: ${RCLONE_EXCLUSIONS}"
+  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e_done "found" || e_error "not found"
 
 else
 
@@ -85,7 +85,12 @@ e "Backup directory root: ${BACKUP_DIR_ROOT}"
 
 e "Keep logs for: ${KEEP_LOGS_FOR} days"
 
-e "Compressed file directory: ${COMPRESS_DIR}"
+e_cont "Compressed file directory: ${COMPRESS_DIR}"
+if [ -n "${COMPRESS_DIR}" ] ; then
+  [[ -d "${COMPRESS_DIR}" ]] && e_done "found" || e_error "not found"
+else
+  e_done "not enabled"
+fi
 e "Compressed file maximum size: ${COMPRESS_MAX_FILE_SIZE}"
 e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
 

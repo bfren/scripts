@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.4.220314.1725
+UTILS_VERSION=0.4.220314.1735
 
 
 # ======================================================================================================================
@@ -11,7 +11,7 @@ UTILS_VERSION=0.4.220314.1725
 
 # echo to stdout and log file
 #   1: string to echo
-e () { 
+e () {
 
   # get current date / time
   DATE=$(date '+%Y-%m-%d %H:%M')
@@ -23,7 +23,7 @@ e () {
 
 # echo to stdout and log file, without newline terminator
 #   1: string to echo
-e_cont () { 
+e_cont () {
 
   # get current date / time
   DATE=$(date '+%Y-%m-%d %H:%M')
@@ -33,16 +33,20 @@ e_cont () {
 
 }
 
-# echo 'done' - in green to stdout, and to log file
+# echo text or 'done' - in green to stdout, and to log file
+#   1: string to echo (or 'done' if null)
 e_done () {
+
+  # done or text
+  TEXT="${1:-done}"
 
   # colour commands
   GREEN='\033[1;32m'
   NC='\033[0m'
 
   # echo
-  echo -e "${GREEN}done${NC}"
-  echo "done" >> "${LOG}"
+  echo -e "${GREEN}${TEXT}${NC}"
+  echo "${TEXT}" >> "${LOG}"
 
 }
 
