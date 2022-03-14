@@ -81,7 +81,7 @@ if [ "${METHOD}" = "rsync" ] ; then
 
 elif [ "${METHOD}" = "rclone" ] ; then
 
-  RCLONE_EXCLUSIONS${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
+  RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rclone arguments: ${RCLONE_ARGS}"
   e "rclone config: ${RCLONE_CONFIG}"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
