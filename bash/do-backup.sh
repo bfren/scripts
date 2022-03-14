@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1815
+BACKUP_VERSION=0.4.220314.1830
 
 
 # ======================================================================================================================
@@ -30,7 +30,7 @@ source "${UTILS}"
 # VARIABLES
 # ======================================================================================================================
 
-START=`date +%s`
+STARTED=`date +%s`
 TODAY="$(date +%Y%m%d)"
 NOW="$(date +%H%M)"
 LOG_DIR="${SCRIPT_DIR}/log"
@@ -50,7 +50,7 @@ e "Log directory: ${LOG_DIR}"
 e "Log file: ${LOG}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
-[[ ! -f "${CONFIG}" ]] && e_error "Please create ${CONFIG} before running this script"
+[[ ! -f "${CONFIG}" ]] && end "Please create ${CONFIG} before running this script"
 
 e "Configuration: ${CONFIG}"
 source "${CONFIG}"
@@ -63,22 +63,22 @@ if [ "${METHOD}" = "rsync" ] ; then
 
   RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e_cont "rsync exclusions: ${RSYNC_EXCLUSIONS}"
-  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e_done "found" || e_error "not found"
+  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e_done "found" || end "not found"
 
 elif [ "${METHOD}" = "rclone" ] ; then
 
   e "rclone arguments: ${RCLONE_ARGS}"
   e_cont "rclone config: ${RCLONE_CONFIG}"
-  [[ -f "${RCLONE_CONFIG}" ]] && e_done "found" || e_error "not found"
+  [[ -f "${RCLONE_CONFIG}" ]] && e_done "found" || end "not found"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
 
   RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e_cont "rclone exclusions: ${RCLONE_EXCLUSIONS}"
-  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e_done "found" || e_error "not found"
+  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e_done "found" || end "not found"
 
 else
 
-  e_error "Unknown backup method: ${METHOD}"
+  end "Unknown backup method: ${METHOD}"
 
 fi
 
@@ -88,7 +88,7 @@ e "Keep logs for: ${KEEP_LOGS_FOR} days"
 
 e_cont "Compressed file directory: ${COMPRESS_DIR}"
 if [ -n "${COMPRESS_DIR}" ] ; then
-  [[ -d "${COMPRESS_DIR}" ]] && e_done "found" || e_error "not found"
+  [[ -d "${COMPRESS_DIR}" ]] && e_done "found" || end "not found"
 else
   e_done "not enabled"
 fi
@@ -101,15 +101,15 @@ e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
 # ======================================================================================================================
 
 RUNNING="${SCRIPT_DIR}/running"
-[[ -f "${RUNNING}" ]] && e_error "Backup already running"
+[[ -f "${RUNNING}" ]] && end "Backup already running"
 touch "${RUNNING}"
 
 
 # ======================================================================================================================
-# START
+# STARTED
 # ======================================================================================================================
 
-e "== BACKUP =="
+echo "== BACKUP ==" >> ${LOG}
 e "Starting new backup (backup script version ${BACKUP_VERSION})"
 
 
@@ -280,12 +280,17 @@ fi
 # COMPLETE
 # ======================================================================================================================
 
-e_cont "Removing ${RUNNING}..."
+e_cont "Removing ${RUNNING}"
 rm ${RUNNING}
 e_done
 
-END=`date +%s`
-((H=(${END} - ${START}) / 3600))
-((M=((${END} - ${START}) % 3600) / 60))
-((S=(${END} - ${START}) % 60))
+ENDED=`date +%s`
+H=$(((ENDED - STARTED) / 3600))
+M=$((((ENDED - STARTED) % 3600) / 60))
+S=$(((ENDED - STARTED) % 60))
 printf "Backup completed in %02dh %02dm %02ds\n" ${H} ${M} ${S} 2>&1 | tee -a "${LOG}"
+
+end () {
+  rm ${RUNNING}
+  e_error "${1:-Unknown error}"
+}
