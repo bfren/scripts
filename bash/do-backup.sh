@@ -149,8 +149,6 @@ backup_rclone() {
   UAG=${RCLONE_USER_AGENT}
   TPS=${RCLONE_TPS_LIMIT}
 
-  export GODEBUG=asyncpreemptoff=1 # https://forum.rclone.org/t/interrupted-system-call-errors-when-sync-solved/20025
-
   FROM="${1}"
   TO="${2}"
 
