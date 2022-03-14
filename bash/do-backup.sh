@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2020
 
-set -u
+set -euo pipefail
 
 
 # ======================================================================================================================
@@ -50,10 +50,7 @@ e "Log file: ${LOG}"
 # ======================================================================================================================
 
 RUNNING="${SCRIPT_DIR}/running"
-if [ -f "${RUNNING}" ] ; then
-  e "Backup already running"
-  exit
-fi
+[[ -f "${RUNNING}" ]] && e_error "Backup already running"
 
 e "Running file: ${RUNNING}"
 touch "${RUNNING}"
@@ -65,7 +62,7 @@ touch "${RUNNING}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
 if [ ! -f "${CONFIG}" ]; then
-  e "Please create ${CONFIG} before running this script." && exit 1
+  e_error "Please create ${CONFIG} before running this script"
 fi
 
 e "Configuration: ${CONFIG}"
@@ -75,21 +72,26 @@ e "Backup method: ${METHOD}"
 
 if [ "${METHOD}" = "rsync" ] ; then
 
-  RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rsync arguments: ${RSYNC_ARGS}"
+  
+  RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rsync exclusions: ${RSYNC_EXCLUSIONS}"
+  [[ -f "${RSYNC_EXCLUSIONS} "]] && e "found" || e_error "not found"
 
 elif [ "${METHOD}" = "rclone" ] ; then
 
-  RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rclone arguments: ${RCLONE_ARGS}"
-  e "rclone config: ${RCLONE_CONFIG}"
+  e_cont "rclone config: ${RCLONE_CONFIG}"
+  [[ -f "${RCLONE_CONFIG} "]] && e "found" || e_error "not found"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
+  
+  RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e "rclone exclusions: ${RCLONE_EXCLUSIONS}"
+  [[ -f "${RCLONE_EXCLUSIONS} "]] && e "found" || e_error "not found"
 
 else
 
-  e "Unknown backup method: ${METHOD}" && exit 1
+  e_error "Unknown backup method: ${METHOD}"
 
 fi
 
@@ -97,9 +99,9 @@ e "Backup directory root: ${BACKUP_DIR_ROOT}"
 
 e "Keep logs for: ${KEEP_LOGS_FOR} days"
 
-e "Compress directory: ${COMPRESS_DIR}"
+e "Compressed file directory: ${COMPRESS_DIR}"
 e "Compressed file maximum size: ${COMPRESS_MAX_FILE_SIZE}"
-e "Keep compressed files for: ${KEEP_COMPRESSED_FOR}"
+e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
 
 
 # ======================================================================================================================

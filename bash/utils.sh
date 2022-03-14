@@ -9,7 +9,7 @@ UTILS_VERSION=0.4.220314.1720
 # FUNCTIONS - ECHO & PRINT
 # ======================================================================================================================
 
-# echo to stdout and log file, without newline terminator
+# echo to stdout and log file
 #   1: string to echo
 e () { 
 
@@ -18,6 +18,18 @@ e () {
 
   # echo with date / time
   echo -e "${DATE} ${1}" 2>&1 | tee -a "${LOG}";
+
+}
+
+# echo to stdout and log file, without newline terminator
+#   1: string to echo
+e_cont () { 
+
+  # get current date / time
+  DATE=$(date '+%Y-%m-%d %H:%M')
+
+  # echo with date / time
+  echo -e "${DATE} ${1}...\c" 2>&1 | tee -a "${LOG}";
 
 }
 
@@ -31,6 +43,25 @@ e_done () {
   # echo
   echo -e "${GREEN}done${NC}"
   echo "done" >> "${LOG}"
+
+}
+
+# echo an error message - in red to stdout, and to log file
+e_error () {
+
+  # get current date / time
+  DATE=$(date '+%Y-%m-%d %H:%M')
+
+  # colour commands
+  RED='\033[1;91m'
+  NC='\033[0m'
+
+  # echo
+  echo -e "${DATE} ${RED}${1}${NC}"
+  echo "${DATE} ${1}" >> "${LOG}"
+
+  # exit with error
+  exit 1
 
 }
 
