@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.4.220314.1740
+UTILS_VERSION=0.4.220314.1805
 
 
 # ======================================================================================================================
@@ -96,7 +96,7 @@ delete_old () {
 
     # use arguments to delete old directories
     e_cont "Deleting ${1} directories older than ${2} days"
-    find "${3}" -type d -mmin +${MIN} | xargs rm -r
+    find "${3}" -type d -mmin +${MIN} | xargs -0 -r rm -r
     e_done
 
   fi
