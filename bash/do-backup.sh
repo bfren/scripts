@@ -11,7 +11,7 @@ set -u
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.3.220311.1715
+BACKUP_VERSION=0.4.220314.1715
 
 
 # ======================================================================================================================
@@ -21,14 +21,13 @@ BACKUP_VERSION=0.3.220311.1715
 SCRIPT_DIR=`dirname $(readlink -f $0)`
 UTILS="${SCRIPT_DIR}/utils.sh"
 if [ ! -f "${UTILS}" ]; then
-  echo "Please create ${UTILS} before running this script"
-  exit
+  echo "Please create ${UTILS} before running this script" && exit 1
 fi
+source "${UTILS}"
 
 echo "== CONFIG ======================================="
 echo "================================================="
-echo "Utils: ${UTILS}."
-source "${UTILS}"
+e "Utils: ${UTILS}"
 
 
 # ======================================================================================================================
@@ -41,8 +40,9 @@ NOW="$(date +%H%M)"
 LOG_DIR="${SCRIPT_DIR}/log"
 LOG="${LOG_DIR}/backup-${TODAY}.log"
 
-echo "Log directory: ${LOG_DIR}."
-echo "Log file: ${LOG}."
+e "Script directory: ${SCRIPT_DIR}"
+e "Log directory: ${LOG_DIR}"
+e "Log file: ${LOG}"
 
 
 # ======================================================================================================================
@@ -51,11 +51,11 @@ echo "Log file: ${LOG}."
 
 RUNNING="${SCRIPT_DIR}/running"
 if [ -f "${RUNNING}" ] ; then
-  e "Backup already running" && echo ""
+  e "Backup already running"
   exit
 fi
 
-echo "Running file: ${RUNNING}."
+e "Running file: ${RUNNING}"
 touch "${RUNNING}"
 
 
@@ -65,12 +65,41 @@ touch "${RUNNING}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
 if [ ! -f "${CONFIG}" ]; then
-  e "Please create ${CONFIG} before running this script" && echo ""
-  exit
+  e "Please create ${CONFIG} before running this script." && exit 1
 fi
 
-echo "Configuration: ${CONFIG}."
+e "Configuration: ${CONFIG}"
 source "${CONFIG}"
+
+e "Backup method: ${METHOD}"
+
+if [ "${METHOD}" = "rsync" ] ; then
+
+  RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
+  e "rsync arguments: ${RSYNC_ARGS}"
+  e "rsync exclusions: ${RSYNC_EXCLUSIONS}"
+
+elif [ "${METHOD}" = "rclone" ] ; then
+
+  RCLONE_EXCLUSIONS${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
+  e "rclone arguments: ${RCLONE_ARGS}"
+  e "rclone config: ${RCLONE_CONFIG}"
+  e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
+  e "rclone exclusions: ${RCLONE_EXCLUSIONS}"
+
+else
+
+  e "Unknown backup method: ${METHOD}" && exit 1
+
+fi
+
+e "Backup directory root: ${BACKUP_DIR_ROOT}"
+
+e "Keep logs for: ${KEEP_LOGS_FOR} days"
+
+e "Compress directory: ${COMPRESS_DIR}"
+e "Compressed file maximum size: ${COMPRESS_MAX_FILE_SIZE}"
+e "Keep compressed files for: ${KEEP_COMPRESSED_FOR}"
 
 
 # ======================================================================================================================
@@ -79,7 +108,7 @@ source "${CONFIG}"
 
 echo "== BACKUP ======================================="
 echo "================================================="
-p "Starting new backup (backup script version ${BACKUP_VERSION})"
+e "Starting new backup (backup script version ${BACKUP_VERSION})"
 
 
 # ======================================================================================================================
@@ -93,7 +122,7 @@ backup_rsync() {
 
   FROM="${1}"
   TO="${2}"
-  EXC=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
+  EXC=${RSYNC_EXCLUSIONS}
 
   if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
     RESULTS=$(rsync -${RSYNC_ARGS} --delete --force "${FROM}" "${TO}")
@@ -109,12 +138,11 @@ backup_rsync() {
 #   2: directory to backup into
 backup_rclone() {
 
-  printf "\n" 2>&1 | tee -a "${LOG}";
-
   RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v${RCLONE_BACKUP_VERSION}"
+  e "rclone user agent: ${RCLONE_USER_AGENT}"
 
-  EXC=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
+  EXC=${RCLONE_EXCLUSIONS}
   ARG=${RCLONE_ARGS}
   CFG=${RCLONE_CONFIG}
   UAG=${RCLONE_USER_AGENT}
@@ -137,8 +165,6 @@ backup_rclone() {
     fi
   fi
 
-  RESULTS="Syncing ${FROM} -> ${TO} finished."
-
 }
 
 RCLONE_COUNT=0
@@ -149,13 +175,13 @@ RCLONE_COUNT=0
 backup () {
 
   # first argument is required
-  if [[ -z "$1" ]]; then
-    echo "You must pass a file or directory to backup"
+  if [[ -z "${1}" ]]; then
+    e "You must pass a file or directory to backup"
     exit
   fi
   FROM="${1}"
 
-  # use default backup dir if not set
+  # use from path as the backup path, so the backup mirrors the filesystem 
   if [ -d ${FROM} ] ; then
     BACKUP_PATH=${FROM}
   else
@@ -164,20 +190,17 @@ backup () {
   TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
 
   # do backup
-  e "Backing up ${FROM} to ${TO}"
+  e "Backing up ${FROM} -> ${TO}"
 
-  # use specified method
+  # use specified method - other methods are not supported but caught earlier in the script
   case ${METHOD} in
     "rsync") backup_rsync "${FROM}" "${TO}";;
     "rclone") backup_rclone "${FROM}" "${TO}";;
-    *) p "Unknown backup method '${METHOD}'.";;
   esac
 
-  # output changes with two-space indent
-  p "${RESULTS}"
-
-  # done
-  echo_done
+  # output any results
+  [[ -n "${RESULTS}" ]] && e "${RESULTS}"
+  e_done
 
 }
 
@@ -217,10 +240,10 @@ compress () {
     # do compression
     # need to remove '/'' prefix from BACKUP_DIR to avoid tar warning 'Removing leading `/' from member names'
     RESULTS=$(tar cfz - -C / "${BACKUP_DIR_ROOT#*/}" | split -b ${COMPRESS_MAX_FILE_SIZE} - "${COMPRESS_FILE}")
-    p "${RESULTS}"
+    e "${RESULTS}"
 
     # done
-    echo_done
+    e_done
 
   fi
 
@@ -257,11 +280,12 @@ fi
 # COMPLETE
 # ======================================================================================================================
 
-END=`date +%s`
+e "Removing ${RUNNING}"
+rm -f "${RUNNING}"
 
+END=`date +%s`
 ((H=(${END} - ${START}) / 3600))
 ((M=((${END} - ${START}) % 3600) / 60))
 ((S=(${END} - ${START}) % 60))
-printf "Backup completed in %02dh %02dm %02ds\n" ${H} ${M} ${S} 2>&1 | tee -a "${LOG}"
-
-rm "${RUNNING}"
+COMPLETED=`printf "Backup completed in %02dh %02dm %02ds\n" ${H} ${M} ${S}`
+e "${COMPLETED}"
