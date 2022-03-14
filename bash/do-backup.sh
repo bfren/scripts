@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1720
+BACKUP_VERSION=0.4.220314.1725
 
 
 # ======================================================================================================================
@@ -25,10 +25,6 @@ if [ ! -f "${UTILS}" ]; then
 fi
 source "${UTILS}"
 
-echo "== CONFIG ======================================="
-echo "================================================="
-e "Utils: ${UTILS}"
-
 
 # ======================================================================================================================
 # VARIABLES
@@ -40,30 +36,20 @@ NOW="$(date +%H%M)"
 LOG_DIR="${SCRIPT_DIR}/log"
 LOG="${LOG_DIR}/backup-${TODAY}.log"
 
-e "Script directory: ${SCRIPT_DIR}"
-e "Log directory: ${LOG_DIR}"
-e "Log file: ${LOG}"
-
-
-# ======================================================================================================================
-# RUNNING
-# ======================================================================================================================
-
-RUNNING="${SCRIPT_DIR}/running"
-[[ -f "${RUNNING}" ]] && e_error "Backup already running"
-
-e "Running file: ${RUNNING}"
-touch "${RUNNING}"
-
 
 # ======================================================================================================================
 # CONFIG
 # ======================================================================================================================
 
+echo "== CONFIG ======================================="
+echo "================================================="
+
+e "Script directory: ${SCRIPT_DIR}"
+e "Log directory: ${LOG_DIR}"
+e "Log file: ${LOG}"
+
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
-if [ ! -f "${CONFIG}" ]; then
-  e_error "Please create ${CONFIG} before running this script"
-fi
+[[ ! -f "${CONFIG}" ]] && e_error "Please create ${CONFIG} before running this script"
 
 e "Configuration: ${CONFIG}"
 source "${CONFIG}"
@@ -102,6 +88,15 @@ e "Keep logs for: ${KEEP_LOGS_FOR} days"
 e "Compressed file directory: ${COMPRESS_DIR}"
 e "Compressed file maximum size: ${COMPRESS_MAX_FILE_SIZE}"
 e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
+
+
+# ======================================================================================================================
+# RUNNING
+# ======================================================================================================================
+
+RUNNING="${SCRIPT_DIR}/running"
+[[ -f "${RUNNING}" ]] && e_error "Backup already running"
+touch "${RUNNING}"
 
 
 # ======================================================================================================================
