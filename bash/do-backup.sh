@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1146
+BACKUP_VERSION=0.4.220315.1150
 
 
 # ======================================================================================================================
@@ -160,9 +160,9 @@ backup () {
   e_dbg "To: ${TO}"
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
-  if [ -z "${RCLONE_ALREADY_RUN-}" ]; then
+  if [ ${RCLONE_BACKUP_COUNT} -eq 0 ]; then
     DUMP="--dump filters"
-    export RCLONE_ALREADY_RUN=true
+    RCLONE_BACKUP_COUNT=$((RCLONE_BACKUP_COUNT+1))
   fi
   e_dbg "Dump: ${DUMP:-not set}"
 
@@ -188,6 +188,8 @@ backup () {
   e_done
 
 }
+
+RCLONE_BACKUP_COUNT=0
 
 # loop through backup array
 #   1: associative array of directories / files to backup
@@ -233,6 +235,10 @@ compress () {
 
     # done
     e_done
+
+  else
+
+    e_dbg "Compress not enabled"
 
   fi
 
