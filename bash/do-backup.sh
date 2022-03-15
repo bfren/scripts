@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1100
+BACKUP_VERSION=0.4.220315.1105
 
 
 # ======================================================================================================================
@@ -139,6 +139,9 @@ backup_rsync() {
   TO="${2}"
   EXC=${RSYNC_EXCLUSIONS}
 
+  # do backup
+  e "Backing up ${FROM} -> ${TO} (rsync)"
+
   if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
     RESULTS=$(rsync -${RSYNC_ARGS} --delete --force "${FROM}" "${TO}" || echo "Failed")
   else
@@ -162,22 +165,22 @@ backup_rclone() {
   UAG=${RCLONE_USER_AGENT}
   TPS=${RCLONE_TPS_LIMIT}
 
+  # build command
+  CMD="rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during"
+
+  # if this is the first rclone with exclusions, echo the user agent and dump the filters
+  if [ "${RCLONE_COUNT}" = "0" ]; then
+    e "rclone user agent: ${RCLONE_USER_AGENT}"
+    CMD="${CMD} --dump filters"
+    RCLONE_COUNT=$((RCLONE_COUNT+1))
+  fi
+
+  # do backup
   FROM="${1}"
   TO="${2}"
-
-  if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
-    rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --delete-during "${FROM}" "${TO}" || true
-  else
-    # if this is the first rclone with exclusions, echo the user agent and dump the filters
-    if [ "${RCLONE_COUNT}" -eq "0" ]; then
-      e "First run of rclone - output user agent and filters"
-      e "rclone user agent: ${RCLONE_USER_AGENT}"
-      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during --dump filters "${FROM}" "${TO}" || true
-      RCLONE_COUNT=$((RCLONE_COUNT+1))
-    else
-      rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during "${FROM}" "${TO}" || true
-    fi
-  fi
+  e "Backing up ${FROM} -> ${TO} (rclone)"
+  e "CMD: ${CMD}"
+  ${CMD} "${FROM}" "${TO}"
 
 }
 
@@ -202,9 +205,6 @@ backup () {
     BACKUP_PATH=`dirname ${FROM}`
   fi
   TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
-
-  # do backup
-  e "Backing up ${FROM} -> ${TO}"
 
   # use specified method - other methods are not supported but caught earlier in the script
   case ${METHOD} in
