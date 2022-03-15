@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.4.220315.1200
+UTILS_VERSION=0.4.220315.1220
 
 
 # ======================================================================================================================
@@ -53,16 +53,13 @@ e_done () {
 # echo an error message - in red to stdout, and to log file
 e_error () {
 
-  # get current date / time
-  DATE=$(date '+%Y-%m-%d %H:%M')
-
   # colour commands
   RED='\033[1;91m'
   NC='\033[0m'
 
   # echo
-  echo -e "${DATE} ${RED}${1}${NC}"
-  echo "${DATE} ${1}" >> "${LOG}"
+  echo -e "${RED}${1}${NC}"
+  echo "${1}" >> "${LOG}"
 
   # exit with error
   exit 1
