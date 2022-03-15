@@ -170,6 +170,7 @@ backup () {
 
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
+  e "[rclone-log]"
   rclone sync -${RCLONE_ARGS} ${DUMP-} \
     --config="${RCLONE_CONFIG}" \
     --delete-excluded \
@@ -180,7 +181,6 @@ backup () {
     "${FROM}" \
     "${TO}" \
     || true
-
   e_done
 
 }
