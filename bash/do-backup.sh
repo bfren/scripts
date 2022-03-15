@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220314.1830
+BACKUP_VERSION=0.4.220315.1050
 
 
 # ======================================================================================================================
@@ -157,9 +157,10 @@ backup_rclone() {
   else
     # if this is the first rclone with exclusions, echo the user agent and dump the filters
     if [ "${RCLONE_COUNT}" -eq "0" ]; then
+      e "First run of rclone - output user agent and filters"
       e "rclone user agent: ${RCLONE_USER_AGENT}"
       rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during --dump filters "${FROM}" "${TO}" || true
-      ((RCLONE_COUNT=RCLONE_COUNT+1))
+      RCLONE_COUNT=$((RCLONE_COUNT+1))
     else
       rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during "${FROM}" "${TO}" || true
     fi
