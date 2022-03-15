@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.4.220314.1805
+UTILS_VERSION=0.4.220315.1125
 
 
 # ======================================================================================================================
@@ -67,6 +67,11 @@ e_error () {
   # exit with error
   exit 1
 
+}
+
+# echo a debug message
+e_dbg () {
+  echo "[dbg] ${1-}"
 }
 
 

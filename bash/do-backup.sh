@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1120
+BACKUP_VERSION=0.4.220315.1125
 
 
 # ======================================================================================================================
@@ -159,14 +159,16 @@ backup_rclone() {
 
   # get version and build user agent
   RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
+  e_dbg "rclone version: ${RCLONE_BACKUP_VERSION}"
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v${RCLONE_BACKUP_VERSION}"
+  e_dbg "rclone user agent: ${RCLONE_USER_AGENT}"
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
   if [ -z "${RCLONE_ALREADY_RUN-}" ]; then
-    e "rclone user agent: ${RCLONE_USER_AGENT}"
     DUMP=" --dump filters"
     RCLONE_ALREADY_RUN=true
   fi
+  e_dbg "Dump: ${DUMP-}"
 
   # get variables
   EXC=${RCLONE_EXCLUSIONS}
@@ -179,7 +181,7 @@ backup_rclone() {
 
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
-  rclone sync -${ARG}${DUMP} \
+  rclone sync -${ARG}${DUMP-} \
     --config="${CFG}" \
     --delete-excluded \
     --delete-during \
@@ -211,7 +213,7 @@ backup () {
   else
     BACKUP_PATH=`dirname ${FROM}`
   fi
-  echo "Backup path: ${BACKUP_PATH}"
+  e_dbg "Backup path: ${BACKUP_PATH}"
   TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
 
   # use specified method - other methods are not supported but caught earlier in the script
@@ -232,11 +234,11 @@ backup_loop () {
 
   # get array
   local -n A=${1}
-  echo "Backup loop: ${1}"
+  e_dbg "Backup loop: ${1}"
 
   # loop
   for KEY in "${!A[@]}"; do
-    echo "Backup ${KEY} -> ${A[$KEY]}"
+    e_dbg "Backup ${KEY} -> ${A[$KEY]}"
     backup "${KEY}" "${A[$KEY]}"
   done
 
@@ -252,14 +254,16 @@ compress () {
 
   if [ ! -z "${COMPRESS_DIR}" ]; then
 
-    e "Compressing ${BACKUP_DIR_ROOT} to ${COMPRESS_DIR}"
+    e "Compressing ${BACKUP_DIR_ROOT} -> ${COMPRESS_DIR}"
 
     # create subdirectory for today
     COMPRESS_DIR_TODAY="${COMPRESS_DIR}/${TODAY}"
+    e_dbg "Compress directory: ${COMPRESS_DIR_TODAY}"
     mkdir -p "${COMPRESS_DIR_TODAY}"
 
     # compress file path
     COMPRESS_FILE="${COMPRESS_DIR_TODAY}/${TODAY}-${NOW}.tar.gz"
+    e_dbg "Compress file: ${COMPRESS_FILE}"
 
     # do compression
     # need to remove '/'' prefix from BACKUP_DIR to avoid tar warning 'Removing leading `/' from member names'
@@ -278,10 +282,10 @@ compress () {
 # BACKUP DIRECTORIES & FILES
 # ======================================================================================================================
 
-echo "Backup: directories"
+e_dbg "Backup: directories"
 backup_loop D
 
-echo "Backup: files"
+e_dbg "Backup: files"
 backup_loop F
 
 
@@ -289,7 +293,7 @@ backup_loop F
 # COMPRESS
 # ======================================================================================================================
 
-echo "Compress backup"
+e_dbg "Compress backup"
 compress
 
 
@@ -297,11 +301,11 @@ compress
 # DELETE OLD FILES AND DIRECTORIES
 # ======================================================================================================================
 
-echo "Delete old logs"
+e_dbg "Delete old logs"
 delete_old "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
 
 if [ ! -z "${COMPRESS_DIR}" ]; then
-  echo "Delete old compressed backups"
+  e_dbg "Delete old compressed backups"
   delete_old "compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
 fi
 
@@ -318,4 +322,5 @@ ENDED=`date +%s`
 H=$(((ENDED - STARTED) / 3600))
 M=$((((ENDED - STARTED) % 3600) / 60))
 S=$(((ENDED - STARTED) % 60))
+e_dbg "Ended: ${ENDED}, H: ${H}, M: ${M}, S:${S}"
 printf "Backup completed in %02dh %02dm %02ds\n" ${H} ${M} ${S} 2>&1 | tee -a "${LOG}"
