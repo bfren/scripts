@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1205
+BACKUP_VERSION=0.4.220315.1210
 
 
 # ======================================================================================================================
@@ -170,7 +170,7 @@ backup () {
 
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
-  e "[rclone-log]"
+  echo "[rclone]" >> ${LOG}
   rclone sync -${RCLONE_ARGS} ${DUMP-} \
     --config="${RCLONE_CONFIG}" \
     --delete-excluded \
@@ -181,6 +181,7 @@ backup () {
     "${FROM}" \
     "${TO}" \
     || true
+  echo "[/rclone]" >> ${LOG}
   e_done
 
 }
