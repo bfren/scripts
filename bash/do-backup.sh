@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1105
+BACKUP_VERSION=0.4.220315.1115
 
 
 # ======================================================================================================================
@@ -156,31 +156,38 @@ backup_rsync() {
 #   2: directory to backup into
 backup_rclone() {
 
+  # get version and build user agent
   RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v${RCLONE_BACKUP_VERSION}"
 
+  # if this is the first rclone with exclusions, echo the user agent and dump the filters
+  if [ "${RCLONE_COUNT}" = "0" ]; then
+    e "rclone user agent: ${RCLONE_USER_AGENT}"
+    DUMP=" --dump filters"
+    RCLONE_COUNT=$((RCLONE_COUNT+1))
+  fi
+
+  # get variables
   EXC=${RCLONE_EXCLUSIONS}
   ARG=${RCLONE_ARGS}
   CFG=${RCLONE_CONFIG}
   UAG=${RCLONE_USER_AGENT}
   TPS=${RCLONE_TPS_LIMIT}
-
-  # build command
-  CMD="rclone sync -${ARG} --config="${CFG}" --log-file="${LOG}" --user-agent "${UAG}" --tpslimit ${TPS} --exclude-from "${EXC}" --delete-excluded --delete-during"
-
-  # if this is the first rclone with exclusions, echo the user agent and dump the filters
-  if [ "${RCLONE_COUNT}" = "0" ]; then
-    e "rclone user agent: ${RCLONE_USER_AGENT}"
-    CMD="${CMD} --dump filters"
-    RCLONE_COUNT=$((RCLONE_COUNT+1))
-  fi
-
-  # do backup
   FROM="${1}"
   TO="${2}"
+
+  # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
-  e "CMD: ${CMD}"
-  ${CMD} "${FROM}" "${TO}"
+  rclone sync -${ARG}${DUMP} \
+    --config="${CFG}" \
+    --delete-excluded \
+    --delete-during \
+    --exclude-from="${EXC}" \
+    --log-file="${LOG}"
+    --tpslimit=${TPS} \
+    --user-agent="${UAG}" \
+    "${FROM}" \
+    "${TO}"
 
 }
 
