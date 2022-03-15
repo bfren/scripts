@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1125
+BACKUP_VERSION=0.4.220315.1135
 
 
 # ======================================================================================================================
@@ -165,10 +165,10 @@ backup_rclone() {
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
   if [ -z "${RCLONE_ALREADY_RUN-}" ]; then
-    DUMP=" --dump filters"
-    RCLONE_ALREADY_RUN=true
+    DUMP="--dump filters"
+    export RCLONE_ALREADY_RUN=true
   fi
-  e_dbg "Dump: ${DUMP-}"
+  e_dbg "Dump: ${DUMP:-not set}"
 
   # get variables
   EXC=${RCLONE_EXCLUSIONS}
@@ -181,12 +181,12 @@ backup_rclone() {
 
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
-  rclone sync -${ARG}${DUMP-} \
+  rclone sync -${ARG} ${DUMP-} \
     --config="${CFG}" \
     --delete-excluded \
     --delete-during \
     --exclude-from="${EXC}" \
-    --log-file="${LOG}"
+    --log-file="${LOG}" \
     --tpslimit=${TPS} \
     --user-agent="${UAG}" \
     "${FROM}" \
@@ -238,7 +238,7 @@ backup_loop () {
 
   # loop
   for KEY in "${!A[@]}"; do
-    e_dbg "Backup ${KEY} -> ${A[$KEY]}"
+    e_dbg "Backup ${KEY} -> ${A[$KEY]:-not set}"
     backup "${KEY}" "${A[$KEY]}"
   done
 
