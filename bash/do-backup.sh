@@ -11,7 +11,8 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1155
+BACKUP_VERSION=0.4.220315.1200
+DEBUG=0
 
 
 # ======================================================================================================================
@@ -161,8 +162,10 @@ backup () {
   e_dbg "To: ${TO}"
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
-  if [ ${IDX} -eq 0 ]; then
+  if [ ${1} -eq 0 ]; then
     DUMP="--dump filters"
+  else
+    DUMP=""
   fi
   e_dbg "Dump: ${DUMP:-not set}"
 

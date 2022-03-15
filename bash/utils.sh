@@ -2,7 +2,7 @@
 # Copyright (c) bfren - licensed under https://mit.bfren.dev/2021
 
 
-UTILS_VERSION=0.4.220315.1125
+UTILS_VERSION=0.4.220315.1200
 
 
 # ======================================================================================================================
@@ -71,7 +71,9 @@ e_error () {
 
 # echo a debug message
 e_dbg () {
-  echo "[dbg] ${1-}"
+  if [ "${DEBUG-}" = "1" ]; then
+    echo "[dbg] ${1-}"
+  fi
 }
 
 
