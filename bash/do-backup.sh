@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1115
+BACKUP_VERSION=0.4.220315.1120
 
 
 # ======================================================================================================================
@@ -39,10 +39,11 @@ echo "== BACKUP | ${TODAY}${NOW} ==" >> ${LOG}
 
 
 # ======================================================================================================================
-# END FUNCTION
-#   1: text to print ('Unknown error' if empty)
+# FUNCTIONS - END
 # ======================================================================================================================
 
+# Remove running file and exit with an error
+#   1: text to print ('Unknown error' if empty)
 end () {
   rm ${RUNNING}
   e_error "${1:-Unknown error}"
@@ -161,10 +162,10 @@ backup_rclone() {
   RCLONE_USER_AGENT="ISV|rclone.org|rclone/v${RCLONE_BACKUP_VERSION}"
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
-  if [ "${RCLONE_COUNT}" = "0" ]; then
+  if [ -z "${RCLONE_ALREADY_RUN-}" ]; then
     e "rclone user agent: ${RCLONE_USER_AGENT}"
     DUMP=" --dump filters"
-    RCLONE_COUNT=$((RCLONE_COUNT+1))
+    RCLONE_ALREADY_RUN=true
   fi
 
   # get variables
@@ -187,11 +188,10 @@ backup_rclone() {
     --tpslimit=${TPS} \
     --user-agent="${UAG}" \
     "${FROM}" \
-    "${TO}"
+    "${TO}" \
+    || true
 
 }
-
-RCLONE_COUNT=0
 
 # perform backup
 #   1: file or directory to backup
@@ -211,6 +211,7 @@ backup () {
   else
     BACKUP_PATH=`dirname ${FROM}`
   fi
+  echo "Backup path: ${BACKUP_PATH}"
   TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
 
   # use specified method - other methods are not supported but caught earlier in the script
@@ -231,9 +232,11 @@ backup_loop () {
 
   # get array
   local -n A=${1}
+  echo "Backup loop: ${1}"
 
   # loop
   for KEY in "${!A[@]}"; do
+    echo "Backup ${KEY} -> ${A[$KEY]}"
     backup "${KEY}" "${A[$KEY]}"
   done
 
@@ -275,7 +278,10 @@ compress () {
 # BACKUP DIRECTORIES & FILES
 # ======================================================================================================================
 
+echo "Backup: directories"
 backup_loop D
+
+echo "Backup: files"
 backup_loop F
 
 
@@ -283,6 +289,7 @@ backup_loop F
 # COMPRESS
 # ======================================================================================================================
 
+echo "Compress backup"
 compress
 
 
@@ -290,9 +297,11 @@ compress
 # DELETE OLD FILES AND DIRECTORIES
 # ======================================================================================================================
 
+echo "Delete old logs"
 delete_old "log" ${KEEP_LOGS_FOR} "${LOG_DIR}"
 
 if [ ! -z "${COMPRESS_DIR}" ]; then
+  echo "Delete old compressed backups"
   delete_old "compressed backup" ${KEEP_COMPRESSED_FOR} "${COMPRESS_DIR}"
 fi
 
