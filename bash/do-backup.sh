@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1150
+BACKUP_VERSION=0.4.220315.1155
 
 
 # ======================================================================================================================
@@ -138,15 +138,16 @@ e "Starting new backup (backup script version ${BACKUP_VERSION})"
 # ======================================================================================================================
 
 # perform backup
-#   1: file or directory to backup
-#   2: (optional) directory to backup into - default is ${BACKUP_DIR_ROOT}/${1}
+#   1: backup index
+#   2: file or directory to backup
+#   3: (optional) directory to backup into - default is ${BACKUP_DIR_ROOT}/${1}
 backup () {
 
   # first argument is required
-  if [ -z "${1}" ]; then
+  if [ -z "${2}" ]; then
     e_error "You must pass a file or directory to backup"
   fi
-  FROM="${1}"
+  FROM="${2}"
   e_dbg "From: ${FROM}"
 
   # use from path as the backup path, so the backup mirrors the filesystem
@@ -156,31 +157,24 @@ backup () {
     BACKUP_PATH=`dirname ${FROM}`
   fi
   e_dbg "Backup path: ${BACKUP_PATH}"
-  TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
+  TO="${3:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
   e_dbg "To: ${TO}"
 
   # if this is the first rclone with exclusions, echo the user agent and dump the filters
-  if [ ${RCLONE_BACKUP_COUNT} -eq 0 ]; then
+  if [ ${IDX} -eq 0 ]; then
     DUMP="--dump filters"
-    RCLONE_BACKUP_COUNT=$((RCLONE_BACKUP_COUNT+1))
   fi
   e_dbg "Dump: ${DUMP:-not set}"
 
-  # get variables
-  EXC=${RCLONE_EXCLUSIONS}
-  ARG=${RCLONE_ARGS}
-  CFG=${RCLONE_CONFIG}
-  TPS=${RCLONE_TPS_LIMIT}
-
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
-  rclone sync -${ARG} ${DUMP-} \
-    --config="${CFG}" \
+  rclone sync -${RCLONE_ARGS} ${DUMP-} \
+    --config="${RCLONE_CONFIG}" \
     --delete-excluded \
     --delete-during \
-    --exclude-from="${EXC}" \
+    --exclude-from="${RCLONE_EXCLUSIONS}" \
     --log-file="${LOG}" \
-    --tpslimit=${TPS} \
+    --tpslimit=${RCLONE_TPS_LIMIT} \
     "${FROM}" \
     "${TO}" \
     || true
@@ -188,8 +182,6 @@ backup () {
   e_done
 
 }
-
-RCLONE_BACKUP_COUNT=0
 
 # loop through backup array
 #   1: associative array of directories / files to backup
@@ -200,9 +192,11 @@ backup_loop () {
   e_dbg "Backup loop: ${1}"
 
   # loop
+  IDX=0
   for KEY in "${!A[@]}"; do
-    e_dbg "Backup ${KEY} -> ${A[$KEY]:-not set}"
-    backup "${KEY}" "${A[$KEY]}"
+    e_dbg "Backup [${IDX}] ${KEY} -> ${A[$KEY]:-not set}"
+    backup ${IDX} "${KEY}" "${A[$KEY]}"
+    ((IDX++))
   done
 
 }
