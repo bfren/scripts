@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # ======================================================================================================================
 
-BACKUP_VERSION=0.4.220315.1135
+BACKUP_VERSION=0.4.220315.1145
 
 
 # ======================================================================================================================
@@ -62,31 +62,31 @@ e "Log directory: ${LOG_DIR}"
 e "Log file: ${LOG}"
 
 CONFIG="${SCRIPT_DIR}/backup-config.sh"
-[[ ! -f "${CONFIG}" ]] && end "Please create ${CONFIG} before running this script"
+if [ ! -f "${CONFIG}" ] ; then
+  end "Please create ${CONFIG} before running this script"
+fi
 
 e "Configuration: ${CONFIG}"
 source "${CONFIG}"
 
 e "Backup method: ${METHOD}"
 
-if [ "${METHOD}" = "rsync" ] ; then
-
-  e "rsync arguments: ${RSYNC_ARGS}"
-
-  RSYNC_EXCLUSIONS=${RSYNC_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
-  e_cont "rsync exclusions: ${RSYNC_EXCLUSIONS}"
-  [[ -f "${RSYNC_EXCLUSIONS}" ]] && e_done "found" || end "not found"
-
-elif [ "${METHOD}" = "rclone" ] ; then
+if [ "${METHOD}" = "rclone" ] ; then
 
   e "rclone arguments: ${RCLONE_ARGS}"
   e_cont "rclone config: ${RCLONE_CONFIG}"
-  [[ -f "${RCLONE_CONFIG}" ]] && e_done "found" || end "not found"
+  if [ ! -f "${RCLONE_CONFIG}" ] ; then
+    end "not found"
+  fi
+  e_done "found"
   e "rclone TPS limit: ${RCLONE_TPS_LIMIT}"
 
   RCLONE_EXCLUSIONS=${RCLONE_EXCLUSIONS:-${SCRIPT_DIR}/exclusions.txt}
   e_cont "rclone exclusions: ${RCLONE_EXCLUSIONS}"
-  [[ -f "${RCLONE_EXCLUSIONS}" ]] && e_done "found" || end "not found"
+   if [ ! -f "${RCLONE_EXCLUSIONS}" ] ; then
+    end "not found"
+  fi
+  e_done "found"
 
 else
 
@@ -100,10 +100,14 @@ e "Keep logs for: ${KEEP_LOGS_FOR} days"
 
 e_cont "Compressed file directory: ${COMPRESS_DIR}"
 if [ -n "${COMPRESS_DIR}" ] ; then
-  [[ -d "${COMPRESS_DIR}" ]] && e_done "found" || end "not found"
+  if [ ! -d "${COMPRESS_DIR}" ] ; then
+    end "not found"
+  fi
+  e_done "found"
 else
   e_done "not enabled"
 fi
+
 e "Compressed file maximum size: ${COMPRESS_MAX_FILE_SIZE}"
 e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
 
@@ -113,7 +117,9 @@ e "Keep compressed files for: ${KEEP_COMPRESSED_FOR} days"
 # ======================================================================================================================
 
 RUNNING="${SCRIPT_DIR}/running"
-[[ -f "${RUNNING}" ]] && e_error "Backup already running"
+if [ -f "${RUNNING}" ] ; then
+  e_error "Backup already running"
+fi
 touch "${RUNNING}"
 
 
@@ -131,31 +137,27 @@ e "Starting new backup (backup script version ${BACKUP_VERSION})"
 # FUNCTIONS - BACKUP
 # ======================================================================================================================
 
-# perform backup using rsync
+# perform backup
 #   1: file or directory to backup
-#   2: directory to backup into
-backup_rsync() {
+#   2: (optional) directory to backup into - default is ${BACKUP_DIR_ROOT}/${1}
+backup () {
 
-  FROM="${1}"
-  TO="${2}"
-  EXC=${RSYNC_EXCLUSIONS}
-
-  # do backup
-  e "Backing up ${FROM} -> ${TO} (rsync)"
-
-  if [ -z "${EXC}" ] || [ ! -f "${EXC}" ]; then
-    RESULTS=$(rsync -${RSYNC_ARGS} --delete --force "${FROM}" "${TO}" || echo "Failed")
-  else
-    RESULTS=$(rsync -${RSYNC_ARGS} --exclude-from="${EXC}" --delete "${FROM}" "${TO}}" || echo "Failed")
+  # first argument is required
+  if [ -z "${1}" ]; then
+    e_error "You must pass a file or directory to backup"
   fi
+  FROM="${1}"
+  e_dbg "From: ${FROM}"
 
-}
-
-# perform backup using rclone
-# progress will be sent to stdout, everything else logged to the log file directly
-#   1: file or directory to backup
-#   2: directory to backup into
-backup_rclone() {
+  # use from path as the backup path, so the backup mirrors the filesystem
+  if [ -d ${FROM} ] ; then
+    BACKUP_PATH=${FROM}
+  else
+    BACKUP_PATH=`dirname ${FROM}`
+  fi
+  e_dbg "Backup path: ${BACKUP_PATH}"
+  TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
+  e_dbg "To: ${TO}"
 
   # get version and build user agent
   RCLONE_BACKUP_VERSION=$(rclone version | grep -Po -m1 "(\d+\.)+\d+")
@@ -176,8 +178,6 @@ backup_rclone() {
   CFG=${RCLONE_CONFIG}
   UAG=${RCLONE_USER_AGENT}
   TPS=${RCLONE_TPS_LIMIT}
-  FROM="${1}"
-  TO="${2}"
 
   # do backup
   e "Backing up ${FROM} -> ${TO} (rclone)"
@@ -193,37 +193,6 @@ backup_rclone() {
     "${TO}" \
     || true
 
-}
-
-# perform backup
-#   1: file or directory to backup
-#   2: (optional) directory to backup into - default is ${BACKUP_DIR_ROOT}/${1}
-backup () {
-
-  # first argument is required
-  if [[ -z "${1}" ]]; then
-    e "You must pass a file or directory to backup"
-    exit
-  fi
-  FROM="${1}"
-
-  # use from path as the backup path, so the backup mirrors the filesystem
-  if [ -d ${FROM} ] ; then
-    BACKUP_PATH=${FROM}
-  else
-    BACKUP_PATH=`dirname ${FROM}`
-  fi
-  e_dbg "Backup path: ${BACKUP_PATH}"
-  TO="${2:-${BACKUP_DIR_ROOT}${BACKUP_PATH}}"
-
-  # use specified method - other methods are not supported but caught earlier in the script
-  case ${METHOD} in
-    "rsync") backup_rsync "${FROM}" "${TO}";;
-    "rclone") backup_rclone "${FROM}" "${TO}";;
-  esac
-
-  # output any results
-  [[ -n "${RESULTS-}" ]] && e "${RESULTS}"
   e_done
 
 }

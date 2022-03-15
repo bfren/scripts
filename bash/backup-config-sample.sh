@@ -5,7 +5,7 @@
 # BACKUP METHOD
 # ======================================================================================================================
 
-# either 'rsync' or 'rclone' (must be installed or it won't work!)
+# 'rclone' (must be installed or it won't work!)
 METHOD="rclone"
 
 
@@ -15,18 +15,6 @@ METHOD="rclone"
 
 # absolute path to the directory where you want your backups to be stored
 BACKUP_DIR_ROOT="/path/to/backup/root"
-
-
-# ======================================================================================================================
-# RSYNC
-# ======================================================================================================================
-
-# the arguments used by rsync
-RSYNC_ARGS="aimz"
-
-# absolute path to rsync exclusions text file
-# if this is not set, nothing will be excluded from the backup
-RSYNC_EXCLUSIONS=""
 
 
 # ======================================================================================================================
