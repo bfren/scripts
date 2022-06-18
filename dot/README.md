@@ -1,5 +1,13 @@
 # Standard Config Files
 
+## Docker
+
+```bash
+mkdir -p ~/.docker
+cd ~/.docker
+curl https://raw.githubusercontent.com/bfren/scripts/main/dot/docker/config.json > config.json
+```
+
 ## Fish
 
 See [fish](https://fishshell.com/).
