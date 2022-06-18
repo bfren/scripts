@@ -4,7 +4,7 @@ function fish_prompt
     set -l normal (set_color normal)
     set -l usercolor (set_color $fish_color_user)
 
-    set -l delim " \$ "
+    set -l delim " ƒ "
 
     fish_is_root_user; and set delim " # "
 
