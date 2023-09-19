@@ -8,6 +8,13 @@
 
 `wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | sh`
 
+## Show Temperature
+
+Simple script to show the temperature of the GPU and CPU of a Raspberry Pi.  It may work in other environments too,
+but is untested.
+
+`wget -q https://raw.githubusercontent.com/bfren/scripts/main/bash/show-temp.sh && chmod +x show-temp.sh`
+
 ## Backup
 
 Server backup script (using `rsync` or `rclone`) with the following options:
@@ -33,10 +40,3 @@ Then you need to create file `backup-config.sh` in the same directory.  A sample
 and edit with your details:
 
 `curl https://raw.githubusercontent.com/bfren/scripts/main/bash/backup-config-sample.sh > backup-config.sh`
-
-## Show Temperature
-
-Simple script to show the temperature of the GPU and CPU of a Raspberry Pi.  It may work in other environments too,
-but is untested.
-
-`curl https://raw.githubusercontent.com/bfren/scripts/main/bash/show-temp.sh > show-temp.sh | chmod +x show-temp.sh`
