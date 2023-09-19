@@ -1,12 +1,16 @@
 # Bash Scripts
 
+## Debian Setup
+
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/setup-debian.sh" | bash`
+
 ## Add SSH keys
 
 `wget -q -O ~/.ssh/authorized_keys "https://github.com/bfren.keys"`
 
 ## Fish
 
-`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | sh`
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | bash`
 
 ## Show Temperature
 
