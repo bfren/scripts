@@ -6,7 +6,7 @@
 
 ## Fish
 
-`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | bash`
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | sh`
 
 ## Backup
 
