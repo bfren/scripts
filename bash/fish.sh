@@ -10,6 +10,15 @@ GIST_RIGHT=https://gist.githubusercontent.com/bfren/82695380c25bb18a29e2f6669f4d
 cd ~
 mkdir -p ${FUNCTIONS_D}
 
+echo "Downloading..."
+
+echo " .. fish_variables"
 wget -q -O ${FISH_D}/fish_variables ${GIST_VARIABLES}
+
+echo " .. fish_prompt.fish"
 wget -q -O ${FUNCTIONS_D}/fish_prompt.fish ${GIST_PROMPT}
+
+echo " .. fish_right_prompt.fish"
 wget -q -O ${FUNCTIONS_D}/fish_right_prompt.fish ${GIST_RIGHT}
+
+echo "Done."
