@@ -2,7 +2,11 @@
 
 ## Add SSH keys
 
-`wget -q -O - "https://github.com/bfren.keys" >> ~/.ssh/authorized_keys`
+`wget -q -O ~/.ssh/authorized_keys "https://github.com/bfren.keys"`
+
+## Fish
+
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | bash`
 
 ## Backup
 
