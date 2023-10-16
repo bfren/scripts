@@ -8,6 +8,10 @@
 
 `wget -q -O ~/.ssh/authorized_keys "https://github.com/bfren.keys"`
 
+## Nushell
+
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/nu.sh" | bash`
+
 ## Fish
 
 `wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/fish.sh" | bash`
