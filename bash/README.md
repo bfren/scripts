@@ -10,7 +10,7 @@
 
 ## Nushell
 
-`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/nu.sh" | bash`
+`wget -q -O - "https://raw.githubusercontent.com/bfren/scripts/main/bash/nu.sh" | bash /dev/stdin "0.86.0"`
 
 ## Fish
 
