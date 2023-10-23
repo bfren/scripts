@@ -32,10 +32,9 @@ esac
 
 TMP=`mktemp -d`
 cd ${TMP}
-URL="https://github.com/nushell/nushell/releases/download/${V}/${FILE}.tar.gz"
-wget ${URL}
-wget https://gist.githubusercontent.com/bfren/fdc7c7870855a2969068222ed772e5b3/raw/config.nu
-wget https://gist.githubusercontent.com/bfren/e7cbb1a04a4e1d1382965fad57e46f26/raw/env.nu
+wget "https://github.com/nushell/nushell/releases/download/${V}/${FILE}.tar.gz"
+wget https://raw.githubusercontent.com/bfren/nushell/main/${V}/config.nu
+wget https://raw.githubusercontent.com/bfren/nushell/main/${V}/env.nu
 
 
 #======================================================================================================================
@@ -45,7 +44,7 @@ wget https://gist.githubusercontent.com/bfren/e7cbb1a04a4e1d1382965fad57e46f26/r
 tar -ozxf ${FILE}.tar.gz
 sudo mv ${FILE}/nu* /usr/bin
 
-CONFIG=~/.config/nushell
+CONFIG=${HOME}/.config/nushell
 mkdir -p ${CONFIG} && mv *.nu ${CONFIG}
 
 
