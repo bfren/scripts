@@ -85,9 +85,9 @@ FISH_D=~/.config/fish
 FUNCTIONS_D=${FISH_D}/functions
 
 GIST=https://gist.githubusercontent.com/bfren
-GIST_VARIABLES=${GIST}/1ed2e8b74b4b923a0709b91a3d9eec4f/raw/c7c2b397161f903ea36ad66cb37d1cae47fba3b1/fish_variables
-GIST_PROMPT=${GIST}/27304d7d4c36eff31353147590a5262d/raw/893aa58fafe2514cdec931918af4394b73c6144e/fish_prompt.fish
-GIST_RIGHT=${GIST}/82695380c25bb18a29e2f6669f4dbb88/raw/3519f3e6ceb211f7af9e3ba14389b37b825ed918/fish_right_prompt.fish
+GIST_VARIABLES=${GIST}/1ed2e8b74b4b923a0709b91a3d9eec4f/raw/fish_variables
+GIST_PROMPT=${GIST}/27304d7d4c36eff31353147590a5262d/raw/fish_prompt.fish
+GIST_RIGHT=${GIST}/82695380c25bb18a29e2f6669f4dbb88/raw/fish_right_prompt.fish
 
 mkdir -p ${FUNCTIONS_D}
 
