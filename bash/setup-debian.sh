@@ -110,7 +110,7 @@ curl -fsSL ${GIST_RIGHT} \
 
 echo "Adding authorised keys"
 
-curl -fsSL https://github.com/bfren.keys \
+curl -fsSL https://bfren.dev/ssh \
     | tee ~/.ssh/authorized_keys > /dev/null
 
 echo "Done."
