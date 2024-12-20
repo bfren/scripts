@@ -53,7 +53,7 @@ echo "Installing packages"
 
 sudo apt update
 sudo DEBIAN_FRONTEND=noninteractive \
-    apt install -y fish docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nano
+    apt install -y fish docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin nano ufw
 
 
 #======================================================================================================================
