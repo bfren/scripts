@@ -6,7 +6,7 @@
 
 ## Add SSH keys
 
-`wget -q -O ~/.ssh/authorized_keys "https://github.com/bfren.keys"`
+`wget -q -O ~/.ssh/authorized_keys "https://bfren.dev/ssh"`
 
 ## Nushell
 
