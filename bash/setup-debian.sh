@@ -20,10 +20,10 @@ sudo DEBIAN_FRONTEND=noninteractive \
 
 echo "Setting up fish repository"
 
-FISH_REPO=https://download.opensuse.org/repositories/shells:fish:release:3/Debian_12
+FISH_REPO=http://download.opensuse.org/repositories/shells:/fish:/release:/4/Debian_12
 
 curl -fsSL ${FISH_REPO}/Release.key \
-    | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/shells_fish_release_3.gpg > /dev/null
+    | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/shells_fish_release_4.gpg > /dev/null
 
 echo "deb ${FISH_REPO}/ /" \
     | sudo tee /etc/apt/sources.list.d/fish.list
