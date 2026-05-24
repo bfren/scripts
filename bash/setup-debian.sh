@@ -20,7 +20,7 @@ sudo DEBIAN_FRONTEND=noninteractive \
 
 echo "Setting up fish repository"
 
-FISH_REPO=http://download.opensuse.org/repositories/shells:/fish:/release:/4/Debian_12
+FISH_REPO=http://download.opensuse.org/repositories/shells:/fish:/release:/4/Debian_13
 
 curl -fsSL ${FISH_REPO}/Release.key \
     | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/shells_fish_release_4.gpg > /dev/null
@@ -82,18 +82,20 @@ sudo usermod -aG docker $USER
 echo "Adding fish configuration"
 
 FISH_D=~/.config/fish
+CONF_D=${FISH_D}/conf.d
 FUNCTIONS_D=${FISH_D}/functions
 
 GIST=https://gist.githubusercontent.com/bfren
-GIST_VARIABLES=${GIST}/1ed2e8b74b4b923a0709b91a3d9eec4f/raw/fish_variables
 GIST_PROMPT=${GIST}/27304d7d4c36eff31353147590a5262d/raw/fish_prompt.fish
 GIST_RIGHT=${GIST}/82695380c25bb18a29e2f6669f4dbb88/raw/fish_right_prompt.fish
+GIST_THEME=${GIST}/35621b8701d6da87cf32b68e7da711f7/raw/cde3a649650588e5fd35d9d1b798ff464a2218b7/fish_theme.fish
 
-mkdir -p ${FUNCTIONS_D}
+mkdir -p ${CONF_D}
+mkdir ${FUNCTIONS_D}
 
-echo " .. fish_variables"
-curl -fsSL ${GIST_VARIABLES} \
-    | tee ${FISH_D}/fish_variables > /dev/null
+echo " .. fish_theme.fish"
+curl -fsSL ${GIST_THEME} \
+    | tee ${CONF_D}/fish_theme.fish > /dev/null
 
 echo " .. fish_prompt.fish"
 curl -fsSL ${GIST_PROMPT} \
@@ -102,6 +104,10 @@ curl -fsSL ${GIST_PROMPT} \
 echo " .. fish_right_prompt.fish"
 curl -fsSL ${GIST_RIGHT} \
     | tee ${FUNCTIONS_D}/fish_right_prompt.fish > /dev/null
+
+echo ".. default shell for current user"
+command -v fish | sudo tee -a /etc/shells
+sudo chsh -s "$(command -v fish)" ${USER}
 
 
 #======================================================================================================================
