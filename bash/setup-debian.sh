@@ -67,12 +67,26 @@ echo "$USER ALL=(ALL) NOPASSWD: ALL" \
 
 
 #======================================================================================================================
-# Docker permissions for current user.
+# Docker config.
 #======================================================================================================================
 
-echo "Adding Docker permissions"
+echo "Adding Docker configuration"
 
+echo " .. adding current user to Docker group"
 sudo usermod -aG docker $USER
+
+echo "Adding standard Docker format"
+
+DOCKER_D=~/.docker
+
+GIST=https://gist.githubusercontent.com/bfren
+GIST_DOCKER=${GIST}/cba6ec693dc52395998005d81fff0834/raw/24df20f446f5c96e6258635c30266b2b48b87437/config.json
+
+mkdir ${DOCKER_D}
+
+echo " .. adding Docker config overrides"
+curl -fsSL ${GIST_DOCKER} \
+    | tee ${DOCKER_D}/config.json > /dev/null
 
 
 #======================================================================================================================
@@ -85,7 +99,6 @@ FISH_D=~/.config/fish
 CONF_D=${FISH_D}/conf.d
 FUNCTIONS_D=${FISH_D}/functions
 
-GIST=https://gist.githubusercontent.com/bfren
 GIST_PROMPT=${GIST}/27304d7d4c36eff31353147590a5262d/raw/fish_prompt.fish
 GIST_RIGHT=${GIST}/82695380c25bb18a29e2f6669f4dbb88/raw/fish_right_prompt.fish
 GIST_THEME=${GIST}/35621b8701d6da87cf32b68e7da711f7/raw/cde3a649650588e5fd35d9d1b798ff464a2218b7/fish_theme.fish
